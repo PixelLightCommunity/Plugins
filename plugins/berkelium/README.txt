@@ -1,3 +1,5 @@
+Showcase: http://www.youtube.com/watch?v=JmR_dt3dnpQ
+
 In order to build this plugin you will need;
 
 1. Berkelium binaries (11.0.696.57), download here: https://github.com/sirikata/berkelium/downloads
