@@ -1,7 +1,7 @@
 In order to build this plugin you will need;
 
 1. Berkelium binaries (11.0.696.57), download here: https://github.com/sirikata/berkelium/downloads
-2. PixelLight
+2. PixelLight, download here: http://www.pixellight.org/site/index.php/page/2.html
 
 Do not forget to include these files in order to run this plugin;
 
