@@ -47,8 +47,7 @@ uniform lowp sampler2D TextureMap;	// Texture map
 void main()
 {
 	// Fragment color = fetched interpolated texel color
-	//gl_FragColor = texture2D(TextureMap, VertexTexCoordVS);
-	gl_FragColor = vec4(texture2D(TextureMap, VertexTexCoordVS).b, texture2D(TextureMap, VertexTexCoordVS).g, texture2D(TextureMap, VertexTexCoordVS).r, texture2D(TextureMap, VertexTexCoordVS).a);
+	gl_FragColor = texture2D(TextureMap, VertexTexCoordVS).bgra; // thanks to Phosfor
 	// i know it says BGRA it seems to be working only this way
 }
 );	// STRINGIFY
