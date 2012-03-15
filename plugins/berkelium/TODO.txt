@@ -1,0 +1,6 @@
+* standard and special keyboard events (with continuous pressing repeat)
+* better scrolling fix
+* stretch resize method for lower resolutions + filtering
+* javascript callbacks
+* widgets (really needed??)
+* tooltips (really needed??)
