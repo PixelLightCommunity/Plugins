@@ -33,6 +33,7 @@ class Program : public PLEngine::EngineApplication {
 	protected:
 		virtual void OnInit() override;
 		virtual void OnUpdate() override;
+		virtual void OnDrop(const PLCore::Container<PLCore::String> &lstFiles);
 
 	private:
 		void DebugToConsole(const PLCore::String &sString);

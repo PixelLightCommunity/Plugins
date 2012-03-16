@@ -46,7 +46,7 @@ void Program::OnInit()
 	EngineApplication::OnInit();
 	//EngineApplication::LoadScene("");
 
-	m_pBerkelium = new SRPBerkelium(*this, *GetRenderer(), 768, 768, "http://google.com", 10, 10);
+	m_pBerkelium = new SRPBerkelium(*this, *GetRenderer(), 768, 768, "http://google.com", 0, 0);
 	SceneRenderer *pSceneRenderer = GetSceneRendererTool().GetSceneRenderer();
 	if (pSceneRenderer)
 		pSceneRenderer->Add(*reinterpret_cast<SceneRendererPass*>(m_pBerkelium));
@@ -60,4 +60,13 @@ void Program::OnUpdate()
 	// Berkelium update
 	if (m_pBerkelium)
 		m_pBerkelium->UpdateBerkelium();
+}
+
+
+void Program::OnDrop(const Container<String> &lstFiles)
+{
+	if (m_pBerkelium)
+	{
+		m_pBerkelium->GetWindow()->navigateTo(lstFiles[0].GetASCII(), lstFiles[0].GetLength());
+	}
 }

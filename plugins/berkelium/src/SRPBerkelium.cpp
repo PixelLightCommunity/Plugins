@@ -53,7 +53,10 @@ SRPBerkelium::SRPBerkelium(EngineApplication &cEngineApplication, Renderer &cRen
 	m_pController(nullptr), // cleanup? NOPE.avi
 	SlotControllerEvents(this),
 	m_nMouseX(0),
-	m_nMouseY(0)
+	m_nMouseY(0),
+	m_bDrawPointer(true),
+	m_sPointerImagePath("Pointer.png"),
+	m_pPointerTexture(cRenderer.GetRendererContext().GetTextureManager().LoadResource(m_sPointerImagePath))
 {
 	if (cEngineApplication.IsRunning() && cRenderer.IsInitialized())
 	{
@@ -91,6 +94,8 @@ SRPBerkelium::~SRPBerkelium()
 		delete m_pVertexShader;
 	if (m_pVertexBuffer)
 		delete m_pVertexBuffer;
+	if (m_pPointerTexture)
+		delete m_pPointerTexture;
 	//if (m_pTextureBuffer) // different method
 	//	delete m_pTextureBuffer;
 	//if (m_pBufferData)  // different method
@@ -113,7 +118,7 @@ void SRPBerkelium::Draw(Renderer &cRenderer, const SQCull &cCullQuery)
 	{
 		cRenderer.SetProgram(m_pProgram);
 
-		if (m_pTextureBuffer && m_bBufferReady) // add more checking (initial load of page)
+		if (m_pTextureBuffer && m_bBufferReady && m_bLoaded)
 		{
 			{ // make global
 			const Rectangle &cViewportRect = cRenderer.GetViewport();
@@ -144,7 +149,8 @@ void SRPBerkelium::Draw(Renderer &cRenderer, const SQCull &cCullQuery)
 			m_pProgram->Set("VertexPosition", m_pVertexBuffer, VertexBuffer::Position);
 			m_pProgram->Set("VertexTexCoord", m_pVertexBuffer, VertexBuffer::TexCoord);
 
-			if (m_bLoaded) cRenderer.DrawPrimitives(Primitive::TriangleStrip, 0, 4);
+			cRenderer.DrawPrimitives(Primitive::TriangleStrip, 0, 4);
+			if (m_bDrawPointer && m_nMouseX > 0 && m_nMouseY > 0) DrawPointer(Vector2(float(m_nMouseX - 4), float(m_nMouseY + 2)));
 		}
 	}
 }
@@ -584,7 +590,7 @@ void SRPBerkelium::CreateController()
 
 void SRPBerkelium::ControllerEvents(Control &cControl)
 {
-	//KeyEvents();
+	KeyEvents(cControl);
 	MouseEvents(cControl);
 
 	// base events
@@ -592,6 +598,11 @@ void SRPBerkelium::ControllerEvents(Control &cControl)
 	{
 		if (cControl.GetName() == "KeyboardEscape")
 			m_cEngineApplication.Exit(0);
+		else if	(cControl.GetName() == "KeyboardM")
+		{
+			m_cEngineApplication.GetFrontend().SetMouseVisible(!m_cEngineApplication.GetFrontend().IsMouseVisible());
+			m_cEngineApplication.GetFrontend().SetTrapMouse(!m_cEngineApplication.GetFrontend().IsMouseVisible());
+		}
 		else if	(cControl.GetName() == "KeyboardF5")
 		{
 			m_pBerkeliumWindow->refresh();
@@ -600,7 +611,7 @@ void SRPBerkelium::ControllerEvents(Control &cControl)
 		else if	(cControl.GetName() == "KeyboardF6")
 			m_pBerkeliumWindow->navigateTo(m_sUrl, m_sUrl.GetLength());
 		else if	(cControl.GetName() == "KeyboardF8")
-			WindowResize(512, 512, 128, 128);
+			WindowResize(512, 512, 0, 0, true);
 	}
 }
 
@@ -618,7 +629,7 @@ void SRPBerkelium::MouseEvents(Control &cControl)
 		}
 		if (cControl.GetName() == "MouseRight")
 		{
-			m_pBerkeliumWindow->mouseButton(1, reinterpret_cast<Button&>(cControl).IsPressed());
+			m_pBerkeliumWindow->mouseButton(2, reinterpret_cast<Button&>(cControl).IsPressed());
 		}
 	}
 	// Mouse scrolling
@@ -632,12 +643,43 @@ void SRPBerkelium::MouseEvents(Control &cControl)
 }
 
 
+void SRPBerkelium::KeyEvents(Control &cControl)
+{
+	if (cControl.GetType() == ControlButton)
+	{
+		char nKey = cControl.GetController()->GetChar();
+		String sKey = reinterpret_cast<Button&>(cControl).GetName();
+		bool bTextKey = true;
+		char vk_code = 0;
+
+		if (sKey == "KeyboardBackspace")
+		{
+			vk_code = 0x08;
+			bTextKey = false;
+		}
+
+		if (bTextKey)
+		{
+			wchar_t outchars[2];
+			outchars[0] = nKey;
+			outchars[1] = 0;
+			m_pBerkeliumWindow->textEvent(outchars,1);
+		}
+		else
+		{
+			m_pBerkeliumWindow->keyEvent(true, 0, vk_code, 0);
+			m_pBerkeliumWindow->keyEvent(false, 0, vk_code, 0);
+		}
+	}
+}
+
+
 void SRPBerkelium::MouseMove(int nX, int nY)
 {
 	m_nMouseX = nX;
 	m_nMouseY = nY;
 	if (m_bBerkeliumCreated)
-		m_pBerkeliumWindow->mouseMoved(m_nMouseX - m_nXPos, m_nMouseY - m_nYPos); // test fullscreen!
+		m_pBerkeliumWindow->mouseMoved(m_nMouseX - m_nXPos, m_nMouseY - m_nYPos);
 }
 
 
@@ -707,4 +749,33 @@ Vector2 SRPBerkelium::GetWindowSize()
 Vector2 SRPBerkelium::GetWindowPosition()
 {
 	return Vector2(float(m_nXPos), float(m_nYPos));
+}
+
+
+void SRPBerkelium::ChangePointerState(bool bDrawPointer)
+{
+	m_bDrawPointer = bDrawPointer;
+}
+
+
+void SRPBerkelium::SetPointerImagePath(String sPointerImagePath, bool bDrawPointer)
+{
+	m_bDrawPointer = false;
+	m_sPointerImagePath = sPointerImagePath;
+	m_pPointerTexture = m_cRenderer.GetRendererContext().GetTextureManager().LoadResource(m_sPointerImagePath);
+	if (m_pPointerTexture)
+	{
+		m_bDrawPointer = bDrawPointer;
+	}
+}
+
+
+void SRPBerkelium::DrawPointer(const Vector2 &vPos)
+{
+	if (m_pPointerTexture->GetTextureBuffer())
+	{
+		m_cRenderer.GetDrawHelpers().Begin2DMode(0.0f, 0.0f, 0.0f, 0.0f);
+		m_cRenderer.GetDrawHelpers().DrawImage(*m_pPointerTexture->GetTextureBuffer(), m_cPointerSamplerStates, vPos);
+		m_cRenderer.GetDrawHelpers().End2DMode();
+	}
 }

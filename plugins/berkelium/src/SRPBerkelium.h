@@ -23,6 +23,7 @@
 #include <PLRenderer/Texture/TextureManager.h>
 #include <PLRenderer/Renderer/TextureBuffer.h>
 #include <PLRenderer/RendererContext.h>
+#include <PLRenderer/Renderer/SamplerStates.h>
 #include <PLMath/Vector2.h>
 #include <PLMath/Rectangle.h>
 #include <PLGraphics/Color/Color4.h>
@@ -68,6 +69,8 @@ class SRPBerkelium : public PLScene::SceneRendererPass, public Berkelium::Window
 		Berkelium::Window *GetWindow();
 		PLMath::Vector2 GetWindowSize();
 		PLMath::Vector2 GetWindowPosition();
+		void ChangePointerState(bool bDrawPointer);
+		void SetPointerImagePath(PLCore::String sPointerImagePath, bool bDrawPointer = true);
 
 	protected:
 
@@ -122,6 +125,10 @@ class SRPBerkelium : public PLScene::SceneRendererPass, public Berkelium::Window
 		PLInput::Controller *m_pController;
 		int m_nMouseX;
 		int m_nMouseY;
+		bool m_bDrawPointer;
+		PLCore::String m_sPointerImagePath;
+		PLRenderer::Texture *m_pPointerTexture;
+		PLRenderer::SamplerStates m_cPointerSamplerStates;
 
 		bool CreateVertexBuffer();
 		bool InitShader();
@@ -129,10 +136,12 @@ class SRPBerkelium : public PLScene::SceneRendererPass, public Berkelium::Window
 		void CreateController();
 		void ControllerEvents(PLInput::Control &cControl);
 		void MouseEvents(PLInput::Control &cControl);
+		void KeyEvents(PLInput::Control &cControl);
 		void MouseMove(int nX, int nY);
 		void DrawDebugBox(int nX, int nY, int nWidth, int nHeight);
 		void WindowResize(int nWidth, int nHeight, int nX = 0, int nY = 0, bool bAbsolute = false);
 		void WindowMove(int nX, int nY, bool bAbsolute = false);
+		void DrawPointer(const PLMath::Vector2 &vPos);
 
 
 };
