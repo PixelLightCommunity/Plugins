@@ -10,6 +10,7 @@
 #include <PLScene/Compositing/SceneRenderer.h>
 
 #include "SRPBerkelium.h"
+#include "SRPAwesomium.h"
 
 
 //[-------------------------------------------------------]
@@ -39,6 +40,7 @@ class Program : public PLEngine::EngineApplication {
 		void DebugToConsole(const PLCore::String &sString);
 
 		SRPBerkelium *m_pBerkelium;
+		SRPAwesomium *m_pAwesomium;
 
 
 };

@@ -611,7 +611,7 @@ void SRPBerkelium::ControllerEvents(Control &cControl)
 		else if	(cControl.GetName() == "KeyboardF6")
 			m_pBerkeliumWindow->navigateTo(m_sUrl, m_sUrl.GetLength());
 		else if	(cControl.GetName() == "KeyboardF8")
-			WindowResize(512, 512, 0, 0, true);
+			WindowResize(m_nFrameWidth + 10, m_nFrameHeight + 10, 10, 10);
 	}
 }
 
@@ -691,11 +691,9 @@ Window *SRPBerkelium::GetWindow()
 
 void SRPBerkelium::WindowResize(int nWidth, int nHeight, int nX, int nY, bool bAbsolute)
 {
+	bool bChanged = false;
 	m_bBufferReady = false;
-	m_nFrameWidth = nWidth;
-	m_nFrameHeight = nHeight;
-	m_vImageSize = Vector2(float(m_nFrameWidth), float(m_nFrameHeight));
-	if (nX != 0 || nY != 0)
+	if (nX != 0 || nY != 0 || bAbsolute)
 	{
 		if (bAbsolute)
 		{
@@ -708,16 +706,23 @@ void SRPBerkelium::WindowResize(int nWidth, int nHeight, int nX, int nY, bool bA
 			m_nYPos += nY;
 		}
 		m_vPosition = Vector2(float(m_nXPos), float(m_nYPos));
+		bChanged = true;
+		DebugToConsole("Triggered a move!!!\n");
 	}
-	m_cImage = Image::CreateImage(DataByte, ColorRGBA, Vector3i(m_nFrameWidth, m_nFrameHeight, 1));
-	m_pTextureBuffer = reinterpret_cast<TextureBuffer*>(m_cRenderer.CreateTextureBuffer2D(m_cImage, TextureBuffer::Unknown, 0));
-	m_pBufferData = m_cImage.GetBuffer()->GetData();
-	if (m_pTextureBuffer)
+	if (nWidth != m_nFrameWidth && nHeight != m_nFrameHeight)
 	{
-		CreateVertexBuffer();
-		m_bBufferReady = true;
+		m_nFrameWidth = nWidth;
+		m_nFrameHeight = nHeight;
+		m_vImageSize = Vector2(float(m_nFrameWidth), float(m_nFrameHeight));
+		m_cImage = Image::CreateImage(DataByte, ColorRGBA, Vector3i(m_nFrameWidth, m_nFrameHeight, 1));
+		m_pTextureBuffer = reinterpret_cast<TextureBuffer*>(m_cRenderer.CreateTextureBuffer2D(m_cImage, TextureBuffer::Unknown, 0));
+		m_pBufferData = m_cImage.GetBuffer()->GetData();
 		m_pBerkeliumWindow->resize(m_nFrameWidth, m_nFrameHeight);
+		bChanged = true;
+		DebugToConsole("Triggered a resize!!!\n");
 	}
+	if (bChanged) CreateVertexBuffer();
+	m_bBufferReady = true;
 }
 
 
