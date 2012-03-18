@@ -308,8 +308,7 @@ void SRPBerkelium::onPaint(Window* wini, const unsigned char *bitmap_in, const R
 		// awaiting a full update disregard all partials ones until the full comes in
 		if (bitmap_rect.left() == 0 && bitmap_rect.top() == 0 && bitmap_rect.right() == m_nFrameWidth && bitmap_rect.bottom() == m_nFrameHeight)
 		{
-			//UpdateFullBuffer(bitmap_in);
-			memcpy(m_pBufferData, bitmap_in, m_nFrameWidth * m_nFrameHeight * 4);
+			MemoryManager::Copy(m_pBufferData, bitmap_in, m_nFrameWidth * m_nFrameHeight * 4);
 			m_bNeedsFullUpdate = false;
 			DebugToConsole("Expected full update so i rendered it..\n");
 		}
@@ -319,8 +318,7 @@ void SRPBerkelium::onPaint(Window* wini, const unsigned char *bitmap_in, const R
 		if (bitmap_rect.width() == m_nFrameWidth && bitmap_rect.height() == m_nFrameHeight)
 		{
 			// did not suspect a full update but got it anyway, it might happen and is ok
-			//UpdateFullBuffer(bitmap_in);
-			memcpy(m_pBufferData, bitmap_in, m_nFrameWidth * m_nFrameHeight * 4);
+			MemoryManager::Copy(m_pBufferData, bitmap_in, m_nFrameWidth * m_nFrameHeight * 4);
 			DebugToConsole("Not expected full update\n");
 		}
 		else
@@ -393,7 +391,7 @@ void SRPBerkelium::onPaint(Window* wini, const unsigned char *bitmap_in, const R
 						for(int nScrollHeightIndex = 0; nScrollHeightIndex < nScrollHeightSrc; nScrollHeightIndex++)
 						{
 							nStartPosition = nScrollHeightIndex * (nScrollWidthMax * 4) + (nScrollTopSrc * nScrollWidthMax * 4);
-							memcpy(&m_pBufferData[nScrollHeightIndex * (nScrollWidthMax * 4)], //dest
+							MemoryManager::Copy(&m_pBufferData[nScrollHeightIndex * (nScrollWidthMax * 4)], //dest
 								&m_pBufferData[nStartPosition], //source
 								nScrollWidthSrc * 4); //amount
 						}
@@ -416,7 +414,7 @@ void SRPBerkelium::onPaint(Window* wini, const unsigned char *bitmap_in, const R
 						for(int nCrHeightIndex = 0; nCrHeightIndex < nCrHeight; nCrHeightIndex++)
 						{
 							int nStartPosition = (m_nFrameWidth - nBrLeft) * nBrTop + (nBrTop * nBrLeft) + nBrLeft + (m_nFrameWidth * nCrHeightIndex);
-							memcpy(
+							MemoryManager::Copy(
 								&m_pBufferData[nStartPosition * 4],
 								bitmap_in + (nCrLeft + (nCrHeightIndex + nCrTop) * bitmap_rect.width()) * 4,
 								nCrWidth * 4
@@ -441,7 +439,7 @@ void SRPBerkelium::onPaint(Window* wini, const unsigned char *bitmap_in, const R
 					for(int nCrHeightIndex = 0; nCrHeightIndex < nCrHeight; nCrHeightIndex++)
 					{
 						int nStartPosition = (m_nFrameWidth - nBrLeft) * nBrTop + (nBrTop * nBrLeft) + nBrLeft + (m_nFrameWidth * nCrHeightIndex);
-						memcpy(
+						MemoryManager::Copy(
 							&m_pBufferData[nStartPosition * 4],
 							bitmap_in + (nCrLeft + (nCrHeightIndex + nCrTop) * bitmap_rect.width()) * 4,
 							nCrWidth * 4

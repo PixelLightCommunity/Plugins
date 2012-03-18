@@ -12,6 +12,7 @@
 //[-------------------------------------------------------]
 #include <PLCore/System/System.h>
 #include <PLCore/System/Console.h>
+#include <PLCore/Core/MemoryManager.h>
 #include <PLScene/Compositing/SceneRendererPass.h>
 #include <PLRenderer/Renderer/Renderer.h>
 #include <PLRenderer/Renderer/DrawHelpers.h>

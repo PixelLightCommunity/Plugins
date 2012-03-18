@@ -13,6 +13,7 @@
 #include <PLCore/System/System.h>
 #include <PLCore/System/Console.h>
 #include <PLScene/Compositing/SceneRendererPass.h>
+#include <PLScene/Scene/SceneContext.h>
 #include <PLRenderer/Renderer/Renderer.h>
 #include <PLRenderer/Renderer/DrawHelpers.h>
 #include <PLRenderer/Renderer/VertexBuffer.h>
@@ -51,6 +52,7 @@ class SRPAwesomium : public PLScene::SceneRendererPass {
 	//[-------------------------------------------------------]
 	pl_class(pl_rtti_export, SRPAwesomium, "", PLScene::SceneRendererPass, "SRPAwesomium class")
 		pl_slot_1(ControllerEvents, PLInput::Control&, "Called when a control event has occurred, occurred control as first parameter", "")
+		pl_slot_0(LoopTest, "", "")
 	pl_class_end
 
 
@@ -98,7 +100,6 @@ class SRPAwesomium : public PLScene::SceneRendererPass {
 		PLCore::uint8 *m_pBufferData;
 		bool m_bBufferReady;
 		bool m_bAwesomiumCreated;
-		//Berkelium::Window *m_pBerkeliumWindow;
 		bool m_bNeedsFullUpdate;
 		bool m_bIsActive;
 		bool m_bLoaded;
@@ -126,6 +127,8 @@ class SRPAwesomium : public PLScene::SceneRendererPass {
 		//void WindowResize(int nWidth, int nHeight, int nX = 0, int nY = 0, bool bAbsolute = false);
 		//void WindowMove(int nX, int nY, bool bAbsolute = false);
 		void DrawPointer(const PLMath::Vector2 &vPos);
-
+		
+		void TestEvents();
+		void LoopTest();
 
 };

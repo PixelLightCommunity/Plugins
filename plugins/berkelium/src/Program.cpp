@@ -22,7 +22,8 @@ pl_implement_class(Program)
 //[-------------------------------------------------------]
 Program::Program(Frontend &cFrontend) : EngineApplication(cFrontend),
 	m_pBerkelium(nullptr),
-	m_pAwesomium(nullptr)
+	m_pAwesomium(nullptr),
+	m_nBrowserRenderer(2) // 1 = Berkelium | 2 = Awesomium
 {
 	DebugToConsole("Program initialized..\n\n");
 }
@@ -47,14 +48,18 @@ void Program::OnInit()
 	EngineApplication::OnInit();
 	//EngineApplication::LoadScene("");
 
-	m_pBerkelium = new SRPBerkelium(*this, *GetRenderer(), 512, 512, "http://google.com", 10, 10);
-	m_pAwesomium = new SRPAwesomium(*this, *GetRenderer(), 512, 512, "http://google.com", 512 + 20, 10);
+	if (m_nBrowserRenderer == 1)
+		m_pBerkelium = new SRPBerkelium(*this, *GetRenderer(), 768, 768, "http://google.com", 10, 10);
+	else if (m_nBrowserRenderer == 2)
+		m_pAwesomium = new SRPAwesomium(*this, *GetRenderer(), 768, 768, "http://google.com", 10, 10);
+	else
+		DebugToConsole("!!!\tNO RENDERER CHOOSEN\t\t\t!!!\n!!!\t(check m_nBrowserRenderer in Program)\t!!!\n\n");
 
 	SceneRenderer *pSceneRenderer = GetSceneRendererTool().GetSceneRenderer();
 	if (pSceneRenderer)
 	{
-		pSceneRenderer->Add(*reinterpret_cast<SceneRendererPass*>(m_pBerkelium));
-		pSceneRenderer->Add(*reinterpret_cast<SceneRendererPass*>(m_pAwesomium));
+		if (m_pBerkelium) pSceneRenderer->Add(*reinterpret_cast<SceneRendererPass*>(m_pBerkelium));
+		if (m_pAwesomium) pSceneRenderer->Add(*reinterpret_cast<SceneRendererPass*>(m_pAwesomium));
 	}
 }
 

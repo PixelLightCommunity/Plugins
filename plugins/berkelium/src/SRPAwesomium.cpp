@@ -43,19 +43,19 @@ SRPAwesomium::SRPAwesomium(EngineApplication &cEngineApplication, Renderer &cRen
 	m_pBufferData(nullptr),
 	m_bBufferReady(false),
 	m_bAwesomiumCreated(false),
-	//m_pBerkeliumWindow(nullptr),
 	m_bNeedsFullUpdate(true),
 	m_bIsActive(false),
 	m_bLoaded(false),
 	m_bLoading(false),
 	m_bAllowEvents(bAllowEvents),
-	m_pController(nullptr), // cleanup? NOPE.avi
+	m_pController(nullptr),
 	SlotControllerEvents(this),
 	m_nMouseX(0),
 	m_nMouseY(0),
 	m_bDrawPointer(true),
 	m_sPointerImagePath("Pointer.png"),
-	m_pPointerTexture(cRenderer.GetRendererContext().GetTextureManager().LoadResource(m_sPointerImagePath))
+	m_pPointerTexture(cRenderer.GetRendererContext().GetTextureManager().LoadResource(m_sPointerImagePath)),
+	SlotLoopTest(this)
 {
 	if (cEngineApplication.IsRunning() && cRenderer.IsInitialized())
 	{
@@ -69,6 +69,7 @@ SRPAwesomium::SRPAwesomium(EngineApplication &cEngineApplication, Renderer &cRen
 			m_bBufferReady = true;
 			CreateAwesomium();
 			CreateController();
+			TestEvents();
 		}
 	}
 	else
@@ -248,7 +249,31 @@ void SRPAwesomium::CreateAwesomium()
 	if (!m_bAwesomiumCreated)
 	{
 		DebugToConsole("Creating Awesomium..\n");
-		awe_webcore_initialize_default();
+		awe_webcore_initialize(
+			true,				// enable_plugins
+			true,				// enable_javascript
+			false,				// enable_databases
+			awe_string_empty(), // package_path
+			awe_string_empty(), // locale_path
+			awe_string_empty(), // user_data_path
+			awe_string_empty(), // plugin_path
+			awe_string_empty(), // log_path
+			AWE_LL_NORMAL,		// log_level
+			false,				// forceSingleProcess
+			awe_string_empty(), // childProcessPath
+			true,				// enable_auto_detect_encoding
+			awe_string_empty(), // accept_language_override
+			awe_string_empty(), // default_charset_override
+			awe_string_empty(), // user_agent_override
+			awe_string_empty(), // proxy_server
+			awe_string_empty(), // proxy_config_script
+			awe_string_empty(), // auth_server_whitelist
+			true,				// save_cache_and_cookies
+			0,					// max_cache_size
+			false,				// disable_same_origin_policy
+			false,				// disable_win_message_pump
+			awe_string_empty()	// disable_win_message_pump
+		);
 		m_pWebView = awe_webcore_create_webview(m_nFrameWidth, m_nFrameHeight, false);
 		awe_string* url_str = awe_string_create_from_ascii(m_sUrl.GetASCII(), m_sUrl.GetLength());
 		awe_webview_load_url(m_pWebView, url_str, awe_string_empty(), awe_string_empty(), awe_string_empty());
@@ -451,4 +476,22 @@ void SRPAwesomium::NavigateTo(String sUrl)
 		awe_webview_load_url(m_pWebView, url_str, awe_string_empty(), awe_string_empty(), awe_string_empty());
 		awe_string_destroy(url_str); // not needed anymore
 	}
+}
+
+
+void SRPAwesomium::TestEvents()
+{
+	// Connects event handler
+	SceneContext *pSceneContext = GetSceneContext();
+	if (pSceneContext)
+	{
+		pSceneContext->EventUpdate.Connect(SlotLoopTest); // does have a clue how to work with this :(
+		DebugToConsole("EventUpdate.Connect() passed..\n");
+	}
+}
+
+
+void SRPAwesomium::LoopTest()
+{
+	DebugToConsole("Test ");
 }

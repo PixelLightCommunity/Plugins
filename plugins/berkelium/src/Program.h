@@ -42,5 +42,7 @@ class Program : public PLEngine::EngineApplication {
 		SRPBerkelium *m_pBerkelium;
 		SRPAwesomium *m_pAwesomium;
 
+		int m_nBrowserRenderer;
+
 
 };
