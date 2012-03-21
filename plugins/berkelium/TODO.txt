@@ -1,4 +1,3 @@
 * keyboard events with continuous pressing repeat
-* better scrolling fix
 * stretch resize method for lower resolutions + filtering
 * javascript callbacks

@@ -40,7 +40,6 @@ SRPAwesomium::SRPAwesomium(EngineApplication &cEngineApplication, Renderer &cRen
 	m_nYPos(nY),
 	m_cImage(Image::CreateImage(DataByte, ColorRGBA, Vector3i(nWidth, nHeight, 1))),
 	m_pTextureBuffer(nullptr),
-	m_pBufferData(nullptr),
 	m_bBufferReady(false),
 	m_bAwesomiumCreated(false),
 	m_bNeedsFullUpdate(true),
@@ -54,8 +53,7 @@ SRPAwesomium::SRPAwesomium(EngineApplication &cEngineApplication, Renderer &cRen
 	m_nMouseY(0),
 	m_bDrawPointer(true),
 	m_sPointerImagePath("Pointer.png"),
-	m_pPointerTexture(cRenderer.GetRendererContext().GetTextureManager().LoadResource(m_sPointerImagePath)),
-	SlotLoopTest(this)
+	m_pPointerTexture(cRenderer.GetRendererContext().GetTextureManager().LoadResource(m_sPointerImagePath))
 {
 	if (cEngineApplication.IsRunning() && cRenderer.IsInitialized())
 	{
@@ -65,11 +63,9 @@ SRPAwesomium::SRPAwesomium(EngineApplication &cEngineApplication, Renderer &cRen
 		if (m_cImage.CheckConsistency() == 2) // no buffer data!
 		{
 			m_pTextureBuffer = reinterpret_cast<TextureBuffer*>(cRenderer.CreateTextureBuffer2D(m_cImage, TextureBuffer::Unknown, 0));
-			m_pBufferData = m_cImage.GetBuffer()->GetData();
 			m_bBufferReady = true;
 			CreateAwesomium();
 			CreateController();
-			TestEvents();
 		}
 	}
 	else
@@ -83,8 +79,8 @@ SRPAwesomium::~SRPAwesomium()
 	DebugToConsole("Shutting down..\n");
 	if (m_bAwesomiumCreated)
 	{
-		//awe_webview_destroy(m_pwebView);
-		//awe_webcore_shutdown();
+		awe_webview_destroy(m_pWebView);
+		awe_webcore_shutdown();
 	}
 	if (m_pProgram)
 		delete m_pProgram;
@@ -258,7 +254,7 @@ void SRPAwesomium::CreateAwesomium()
 			awe_string_empty(), // user_data_path
 			awe_string_empty(), // plugin_path
 			awe_string_empty(), // log_path
-			AWE_LL_NORMAL,		// log_level
+			AWE_LL_VERBOSE,		// log_level
 			false,				// forceSingleProcess
 			awe_string_empty(), // childProcessPath
 			true,				// enable_auto_detect_encoding
@@ -272,10 +268,10 @@ void SRPAwesomium::CreateAwesomium()
 			0,					// max_cache_size
 			false,				// disable_same_origin_policy
 			false,				// disable_win_message_pump
-			awe_string_empty()	// disable_win_message_pump
+			awe_string_empty()	// custom_css
 		);
 		m_pWebView = awe_webcore_create_webview(m_nFrameWidth, m_nFrameHeight, false);
-		awe_string* url_str = awe_string_create_from_ascii(m_sUrl.GetASCII(), m_sUrl.GetLength());
+		awe_string *url_str = awe_string_create_from_ascii(m_sUrl.GetASCII(), m_sUrl.GetLength());
 		awe_webview_load_url(m_pWebView, url_str, awe_string_empty(), awe_string_empty(), awe_string_empty());
 		awe_webview_set_transparent(m_pWebView, true);
 		awe_webview_focus(m_pWebView);
@@ -286,6 +282,8 @@ void SRPAwesomium::CreateAwesomium()
 			m_bAwesomiumCreated = true;
 			m_bIsActive = true;
 			DebugToConsole("awe_webcore_are_plugins_enabled: " + String(awe_webcore_are_plugins_enabled() ? "True\n" : "False\n"));
+			//////////////////////////////////////////////////////////////////////////
+			//////////////////////////////////////////////////////////////////////////
 		}
 		else
 			DebugToConsole("Could not create Awesomium!\n");
@@ -479,19 +477,68 @@ void SRPAwesomium::NavigateTo(String sUrl)
 }
 
 
-void SRPAwesomium::TestEvents()
+void SRPAwesomium::WindowResize(int nWidth, int nHeight, int nX, int nY, bool bAbsolute)
 {
-	// Connects event handler
-	SceneContext *pSceneContext = GetSceneContext();
-	if (pSceneContext)
+	bool bChanged = false;
+	m_bBufferReady = false;
+	if (nX != 0 || nY != 0 || bAbsolute)
 	{
-		pSceneContext->EventUpdate.Connect(SlotLoopTest); // does have a clue how to work with this :(
-		DebugToConsole("EventUpdate.Connect() passed..\n");
+		if (bAbsolute)
+		{
+			m_nXPos = nX;
+			m_nYPos = nY;
+		}
+		else
+		{
+			m_nXPos += nX;
+			m_nYPos += nY;
+		}
+		m_vPosition = Vector2(float(m_nXPos), float(m_nYPos));
+		bChanged = true;
+		DebugToConsole("Triggered a move!!!\n");
 	}
+	if (nWidth != m_nFrameWidth && nHeight != m_nFrameHeight)
+	{
+		m_nFrameWidth = nWidth;
+		m_nFrameHeight = nHeight;
+		m_vImageSize = Vector2(float(m_nFrameWidth), float(m_nFrameHeight));
+		m_cImage = Image::CreateImage(DataByte, ColorRGBA, Vector3i(m_nFrameWidth, m_nFrameHeight, 1));
+		m_pTextureBuffer = reinterpret_cast<TextureBuffer*>(m_cRenderer.CreateTextureBuffer2D(m_cImage, TextureBuffer::Unknown, 0));
+		awe_webview_resize(m_pWebView, m_nFrameWidth, m_nFrameHeight, true, 100);
+		bChanged = true;
+		DebugToConsole("Triggered a resize!!!\n");
+	}
+	if (bChanged) CreateVertexBuffer();
+	m_bBufferReady = true;
 }
 
 
-void SRPAwesomium::LoopTest()
+void SRPAwesomium::WindowMove(int nX, int nY, bool bAbsolute)
 {
-	DebugToConsole("Test ");
+	m_bBufferReady = false;
+	if (bAbsolute)
+	{
+		m_nXPos = nX;
+		m_nYPos = nY;
+	}
+	else
+	{
+		m_nXPos += nX;
+		m_nYPos += nY;
+	}
+	m_vPosition = Vector2(float(m_nXPos), float(m_nYPos));
+	CreateVertexBuffer();
+	m_bBufferReady = true;
+}
+
+
+Vector2 SRPAwesomium::GetWindowSize()
+{
+	return Vector2(float(m_nFrameWidth), float(m_nFrameHeight));
+}
+
+
+Vector2 SRPAwesomium::GetWindowPosition()
+{
+	return Vector2(float(m_nXPos), float(m_nYPos));
 }

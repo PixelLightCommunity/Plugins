@@ -287,17 +287,6 @@ bool SRPBerkelium::IsActive()
 }
 
 
-void SRPBerkelium::DrawDebugBox(int nX, int nY, int nWidth, int nHeight)
-{
-	DrawHelpers &cDrawHelpers = m_cRenderer.GetDrawHelpers();
-	cDrawHelpers.Begin2DMode(0.0f, 0.0f, 0.0f, 0.0f);
-
-	cDrawHelpers.DrawQuad(Color4::Blue, Vector2(float(nX), float(nY)), Vector2(float(nWidth), float(nHeight)));
-
-	cDrawHelpers.End2DMode();
-}
-
-
 #pragma region Berkelium onEvent functions
 
 
@@ -323,103 +312,77 @@ void SRPBerkelium::onPaint(Window* wini, const unsigned char *bitmap_in, const R
 		}
 		else
 		{
-			//a scroll has taken place
-			// todo needs to be implemented
-
 			if (dx != 0 || dy != 0)
 			{
-				DebugToConsole("\nA scroll has taken place!\n");
-				// scroll_rect contains the Rect we need to move
-				// First we figure out where the the data is moved to by translating it
-				Berkelium::Rect scrolled_rect = scroll_rect.translate(-dx, -dy);
-				// Next we figure out where they intersect, giving the scrolled
-				// region
-				Berkelium::Rect scrolled_shared_rect = scroll_rect.intersect(scrolled_rect);
-				// Only do scrolling if they have non-zero intersection
-				if (scrolled_shared_rect.width() > 0 && scrolled_shared_rect.height() > 0)
+				// scrolling
 				{
-					// And the scroll is performed by moving shared_rect by (dx,dy)
-					Berkelium::Rect shared_rect = scrolled_shared_rect.translate(dx, dy);
-
-					int wid = shared_rect.width(); // destination
-					int hig = shared_rect.height();
-					int left = shared_rect.left();
-					int top = shared_rect.top();
-
-					DebugToConsole("Width " + String(wid) + "\n");
-					DebugToConsole("Height " + String(hig) + "\n");
-					DebugToConsole("left " + String(left) + "\n");
-					DebugToConsole("top " + String(top) + "\n");
-
-					int wid_s = scrolled_shared_rect.width(); // source
-					int hig_s = scrolled_shared_rect.height();
-					int left_s = scrolled_shared_rect.left();
-					int top_s = scrolled_shared_rect.top();
-
-					DebugToConsole("WidthS " + String(wid_s) + "\n");
-					DebugToConsole("HeightS " + String(hig_s) + "\n");
-					DebugToConsole("leftS " + String(left_s) + "\n");
-					DebugToConsole("topS " + String(top_s) + "\n");
-
-					DebugToConsole("DX: " + String(dx) + "\n");
-					DebugToConsole("DY: " + String(dy) + "\n");
-
-					DebugToConsole("num_copy_rects:  " + String(num_copy_rects) + "\n");
-
-					DebugToConsole(String("| BITMAP_RECT | buffer lenght = ") + String(strlen((char*)bitmap_in)) + String("\n"));
-					DebugToConsole(String("|----- width:\t") + bitmap_rect.width() + String("\t----- height:\t") + bitmap_rect.height() + String("\tTotal pixel size: ") + String(bitmap_rect.width() * bitmap_rect.height()) + String("\n"));
-					DebugToConsole(String("|----- top:\t") + bitmap_rect.top() + String("\t----- left:\t") + bitmap_rect.left() + String("\n"));
-					for (size_t i = 0; i < num_copy_rects; i++)
+					int wid = scroll_rect.width();
+					int hig = scroll_rect.height();
+					int top = scroll_rect.top();
+					int left = scroll_rect.left();
+					int tw = m_nFrameWidth;
+					
+					if (dy < 0) // scroll down
 					{
-						DebugToConsole(String("|=====|==================================================\n"));
-						DebugToConsole(String("|  ") + String(i) + String("  |----- width:\t") + copy_rects[i].width() + String("\t----- height:\t") + copy_rects[i].height()
-							+ String("\tTotal pixel size: ") + String(copy_rects[i].width() * copy_rects[i].height()) + String("\n"));
-						DebugToConsole(String("|=====|----- top:\t") + copy_rects[i].top() + String("\t----- left:\t") + copy_rects[i].left() + String("\n"));
-					}
-					DebugToConsole("\n");
-
-					int nScrollWidthSrc = scrolled_shared_rect.width(); // source
-					int nScrollHeightSrc = scrolled_shared_rect.height();
-					int nScrollLeftSrc = scrolled_shared_rect.left();
-					int nScrollTopSrc = scrolled_shared_rect.top();
-
-					int nScrollWidthMax = bitmap_rect.width(); // needed
-					int nStartPosition; // needed
-
-					if (dy < 0 && dx == 0) // scrolling down
-					{
-						for(int nScrollHeightIndex = 0; nScrollHeightIndex < nScrollHeightSrc; nScrollHeightIndex++)
+						DebugToConsole("Scroll down\n");
+						for (int y = -dy; y < hig; y++)
 						{
-							nStartPosition = nScrollHeightIndex * (nScrollWidthMax * 4) + (nScrollTopSrc * nScrollWidthMax * 4);
-							MemoryManager::Copy(&m_pBufferData[nScrollHeightIndex * (nScrollWidthMax * 4)], //dest
-								&m_pBufferData[nStartPosition], //source
-								nScrollWidthSrc * 4); //amount
+							unsigned int tb = ((top + y) * tw + left) * 4;
+							unsigned int tb2 = tb + dy * tw * 4;
+							MemoryManager::Copy(&m_pBufferData[tb2], &m_pBufferData[tb], wid * 4);
 						}
 					}
-					else if (dy > 0 && dx == 0) // scrolling up
+					else if (dy > 0) // scroll up
 					{
-					}
-
-
-					// new data
-					for (size_t i = 0; i < num_copy_rects; i++)
-					{
-						int nCrWidth = copy_rects[i].width();
-						int nCrHeight = copy_rects[i].height();
-						int nCrTop = copy_rects[i].top() - bitmap_rect.top();
-						int nCrLeft = copy_rects[i].left() - bitmap_rect.left();
-						int nBrTop = copy_rects[i].top();
-						int nBrLeft = copy_rects[i].left();
-
-						for(int nCrHeightIndex = 0; nCrHeightIndex < nCrHeight; nCrHeightIndex++)
+						DebugToConsole("Scroll up\n");
+						for (int y = hig - dy; y > -1; y--)
 						{
-							int nStartPosition = (m_nFrameWidth - nBrLeft) * nBrTop + (nBrTop * nBrLeft) + nBrLeft + (m_nFrameWidth * nCrHeightIndex);
-							MemoryManager::Copy(
-								&m_pBufferData[nStartPosition * 4],
-								bitmap_in + (nCrLeft + (nCrHeightIndex + nCrTop) * bitmap_rect.width()) * 4,
-								nCrWidth * 4
-								);
+							unsigned int tb = ((top + y) * tw + left) * 4;
+							unsigned int tb2 = tb + dy * tw * 4;
+							MemoryManager::Copy(&m_pBufferData[tb2], &m_pBufferData[tb], wid * 4);
 						}
+					}
+					if (dx < 0) // scroll right
+					{
+						DebugToConsole("Scroll right!\n");
+						int subx = dx > 0 ? 0 : -dx;
+						for (int y = 0; y < hig; y++)
+						{
+							unsigned int tb = ((top + y) * tw + left) * 4;
+							unsigned int tb2 = tb - dx * 4;
+							MemoryManager::Copy(&m_pBufferData[tb], &m_pBufferData[tb2], wid * 4 - subx);
+						}
+					}
+					else if (dx > 0) // scroll left
+					{
+						DebugToConsole("Scroll left!\n");
+						int subx = dx > 0 ? 0 : -dx;
+						for (int y = hig - dx; y > -1; y--)
+						{
+							unsigned int tb = ((top + y) * tw + left) * 4;
+							unsigned int tb2 = tb - dx * 4;
+							MemoryManager::Copy(&m_pBufferData[tb], &m_pBufferData[tb2], wid * 4 - subx);
+						}
+					}
+				}
+				// new data for scrolling
+				for (size_t i = 0; i < num_copy_rects; i++)
+				{
+					int nCrWidth = copy_rects[i].width();
+					int nCrHeight = copy_rects[i].height();
+					int nCrTop = copy_rects[i].top() - bitmap_rect.top();
+					int nCrLeft = copy_rects[i].left() - bitmap_rect.left();
+					int nBrTop = copy_rects[i].top();
+					int nBrLeft = copy_rects[i].left();
+
+					for(int nCrHeightIndex = 0; nCrHeightIndex < nCrHeight; nCrHeightIndex++)
+					{
+						int nStartPosition = (m_nFrameWidth - nBrLeft) * nBrTop + (nBrTop * nBrLeft) + nBrLeft + (m_nFrameWidth * nCrHeightIndex);
+						MemoryManager::Copy(
+							&m_pBufferData[nStartPosition * 4],
+							bitmap_in + (nCrLeft + (nCrHeightIndex + nCrTop) * bitmap_rect.width()) * 4,
+							nCrWidth * 4
+							);
 					}
 				}
 			}

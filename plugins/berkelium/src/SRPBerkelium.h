@@ -61,16 +61,39 @@ class SRPBerkelium : public PLScene::SceneRendererPass, public Berkelium::Window
 
 
 	public:
+		//************************************
+		// Method:    SRPBerkelium
+		// FullName:  SRPBerkelium::SRPBerkelium
+		// Access:    public 
+		// Returns:   
+		// Qualifier:
+		// @param:    PLEngine::EngineApplication & cEngineApplication
+		// @param:    PLRenderer::Renderer & cRenderer
+		// @param:    int nWidth
+		// @param:    int nHeight
+		// @param:    PLCore::String sUrl
+		// @param:    int nX
+		// @param:    int nY
+		// @param:    bool bAllowEvents
+		//************************************
 		SRPBerkelium(PLEngine::EngineApplication &cEngineApplication, PLRenderer::Renderer &cRenderer, int nWidth = 64, int nHeight = 64, PLCore::String sUrl = "about:blank", int nX = 0, int nY = 0, bool bAllowEvents = true);
 		virtual ~SRPBerkelium();
 
+		// Updates Berkelium to draw and handle callbacks
 		void UpdateBerkelium();
+		// Is active and running
 		bool IsActive();
+		// Is the page loaded
 		bool IsLoaded();
+		// Gets the window
 		Berkelium::Window *GetWindow();
+		// Gets the window size
 		PLMath::Vector2 GetWindowSize();
+		// Gets the position of the window
 		PLMath::Vector2 GetWindowPosition();
+		// Changes the state to draw the pointer
 		void ChangePointerState(bool bDrawPointer);
+		// Sets and changes the image of the pointer
 		void SetPointerImagePath(PLCore::String sPointerImagePath, bool bDrawPointer = true);
 
 	protected:
@@ -78,6 +101,7 @@ class SRPBerkelium : public PLScene::SceneRendererPass, public Berkelium::Window
 	private:
 		void DebugToConsole(const PLCore::String &sString);
 
+		// Draws the buffers as part of PLScene::SceneRendererPass
 		virtual void Draw(PLRenderer::Renderer &cRenderer, const PLScene::SQCull &cCullQuery) override;
 
 		virtual void onPaint(Berkelium::Window* wini, const unsigned char *bitmap_in, const Berkelium::Rect &bitmap_rect, size_t num_copy_rects, const Berkelium::Rect* copy_rects, int dx, int dy, const Berkelium::Rect& scroll_rect);
@@ -131,17 +155,27 @@ class SRPBerkelium : public PLScene::SceneRendererPass, public Berkelium::Window
 		PLRenderer::Texture *m_pPointerTexture;
 		PLRenderer::SamplerStates m_cPointerSamplerStates;
 
+		// Creates the vertex buffer for rendering
 		bool CreateVertexBuffer();
+		// Initializes the shader for color swapping
 		bool InitShader();
+		// Creates Berkelium for usage
 		void CreateBerkelium();
+		// Creates the controller for handling input
 		void CreateController();
+		// Handles base controller events
 		void ControllerEvents(PLInput::Control &cControl);
+		// Handles mouse events
 		void MouseEvents(PLInput::Control &cControl);
+		// Handles key events
 		void KeyEvents(PLInput::Control &cControl);
+		// Moves the mouse
 		void MouseMove(int nX, int nY);
-		void DrawDebugBox(int nX, int nY, int nWidth, int nHeight);
+		// Resizing the window (position optional)
 		void WindowResize(int nWidth, int nHeight, int nX = 0, int nY = 0, bool bAbsolute = false);
+		// Moves the window to a given location
 		void WindowMove(int nX, int nY, bool bAbsolute = false);
+		// Draws the pointer on screen at given position
 		void DrawPointer(const PLMath::Vector2 &vPos);
 
 
