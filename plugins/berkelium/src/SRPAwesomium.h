@@ -71,7 +71,7 @@ class SRPAwesomium : public PLScene::SceneRendererPass {
 		// @param:    int nY
 		// @param:    bool bAllowEvents
 		//************************************
-		SRPAwesomium(PLEngine::EngineApplication &cEngineApplication, PLRenderer::Renderer &cRenderer, int nWidth = 64, int nHeight = 64, PLCore::String sUrl = "about:blank", int nX = 0, int nY = 0, bool bAllowEvents = true);
+		SRPAwesomium(PLEngine::EngineApplication &cEngineApplication, PLRenderer::Renderer &cRenderer, int nWidth = 64, int nHeight = 64, const PLCore::String &sUrl = "about:blank", int nX = 0, int nY = 0, bool bAllowEvents = true);
 		virtual ~SRPAwesomium();
 
 		// Updates Awesomium to draw and handle callbacks
@@ -87,9 +87,9 @@ class SRPAwesomium : public PLScene::SceneRendererPass {
 		// Changes the state to draw the pointer
 		void ChangePointerState(bool bDrawPointer);
 		// Sets and changes the image of the pointer
-		void SetPointerImagePath(PLCore::String sPointerImagePath, bool bDrawPointer = true);
+		void SetPointerImagePath(const PLCore::String &sPointerImagePath, bool bDrawPointer = true);
 		// Navigates to a given url
-		void NavigateTo(PLCore::String sUrl);
+		void NavigateTo(const PLCore::String &sUrl);
 
 	protected:
 

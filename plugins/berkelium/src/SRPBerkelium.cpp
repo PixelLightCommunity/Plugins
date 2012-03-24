@@ -20,7 +20,7 @@ using namespace PLEngine;
 //[-------------------------------------------------------]
 //[ Functions		                                      ]
 //[-------------------------------------------------------]
-SRPBerkelium::SRPBerkelium(EngineApplication &cEngineApplication, Renderer &cRenderer, int nWidth, int nHeight, String sUrl, int nX, int nY, bool bAllowEvents) :
+SRPBerkelium::SRPBerkelium(EngineApplication &cEngineApplication, Renderer &cRenderer, int nWidth, int nHeight, const String &sUrl, int nX, int nY, bool bAllowEvents) :
 	m_cEngineApplication(cEngineApplication),
 	m_cRenderer(cRenderer),
 	m_pVertexBuffer(nullptr),
@@ -68,8 +68,10 @@ SRPBerkelium::SRPBerkelium(EngineApplication &cEngineApplication, Renderer &cRen
 			m_pTextureBuffer = reinterpret_cast<TextureBuffer*>(cRenderer.CreateTextureBuffer2D(m_cImage, TextureBuffer::Unknown, 0));
 			m_pBufferData = m_cImage.GetBuffer()->GetData();
 			m_bBufferReady = true;
-			CreateBerkelium();
 			CreateController();
+			CreateBerkelium();
+			//////////////////////////////////////////////////////////////////////////
+			//////////////////////////////////////////////////////////////////////////
 		}
 	}
 	else
@@ -315,12 +317,20 @@ void SRPBerkelium::onPaint(Window* wini, const unsigned char *bitmap_in, const R
 			if (dx != 0 || dy != 0)
 			{
 				// scrolling
+				Berkelium::Rect scrolled_rect = scroll_rect.translate(-dx, -dy);
+				Berkelium::Rect scrolled_shared_rect = scroll_rect.intersect(scrolled_rect);
+				if (scrolled_shared_rect.width() > 0 && scrolled_shared_rect.height() > 0)
 				{
+					// Semi-working solution (not good enough)
+					// scrolling to the left (big jumps) will cause a buffer overflow to occur
+					//////////////////////////////////////////////////////////////////////////
 					int wid = scroll_rect.width();
 					int hig = scroll_rect.height();
 					int top = scroll_rect.top();
 					int left = scroll_rect.left();
 					int tw = m_nFrameWidth;
+
+					DebugToConsole(String::Format("dx: %i - dy: %i\n", dx, dy));
 					
 					if (dy < 0) // scroll down
 					{
@@ -342,26 +352,15 @@ void SRPBerkelium::onPaint(Window* wini, const unsigned char *bitmap_in, const R
 							MemoryManager::Copy(&m_pBufferData[tb2], &m_pBufferData[tb], wid * 4);
 						}
 					}
-					if (dx < 0) // scroll right
+					if(dx != 0) // scroll??
 					{
-						DebugToConsole("Scroll right!\n");
+						DebugToConsole("scroll??\n");
 						int subx = dx > 0 ? 0 : -dx;
 						for (int y = 0; y < hig; y++)
 						{
 							unsigned int tb = ((top + y) * tw + left) * 4;
 							unsigned int tb2 = tb - dx * 4;
-							MemoryManager::Copy(&m_pBufferData[tb], &m_pBufferData[tb2], wid * 4 - subx);
-						}
-					}
-					else if (dx > 0) // scroll left
-					{
-						DebugToConsole("Scroll left!\n");
-						int subx = dx > 0 ? 0 : -dx;
-						for (int y = hig - dx; y > -1; y--)
-						{
-							unsigned int tb = ((top + y) * tw + left) * 4;
-							unsigned int tb2 = tb - dx * 4;
-							MemoryManager::Copy(&m_pBufferData[tb], &m_pBufferData[tb2], wid * 4 - subx);
+							MemoryManager::Copy(&m_pBufferData[tb], &m_pBufferData[tb2], wid * 4 - 0);
 						}
 					}
 				}
@@ -724,7 +723,7 @@ void SRPBerkelium::ChangePointerState(bool bDrawPointer)
 }
 
 
-void SRPBerkelium::SetPointerImagePath(String sPointerImagePath, bool bDrawPointer)
+void SRPBerkelium::SetPointerImagePath(const String &sPointerImagePath, bool bDrawPointer)
 {
 	m_bDrawPointer = false;
 	m_sPointerImagePath = sPointerImagePath;

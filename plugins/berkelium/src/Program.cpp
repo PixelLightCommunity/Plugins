@@ -46,7 +46,8 @@ void Program::OnInit()
 {
 	// Call base implementation
 	EngineApplication::OnInit();
-	//EngineApplication::LoadScene("");
+	PLRenderer::FontTexture *pFontTexture = GetRenderer()->GetFontManager().GetFontTexture("SansationRegular.otf", 10U);
+	GetRenderer()->GetFontManager().SetDefaultFontTexture(pFontTexture);
 
 	if (m_nBrowserRenderer == 1)
 		m_pBerkelium = new SRPBerkelium(*this, *GetRenderer(), 768, 768, "http://google.com", 10, 10);
@@ -69,8 +70,8 @@ void Program::OnUpdate()
 	// Call base implementation
 	EngineApplication::OnUpdate();
 	// Berkelium update
- 	if (m_pBerkelium)
- 		m_pBerkelium->UpdateBerkelium();
+	if (m_pBerkelium)
+		m_pBerkelium->UpdateBerkelium();
 	// Awesomium update
 	if (m_pAwesomium)
 		m_pAwesomium->UpdateAwesomium();
@@ -79,10 +80,10 @@ void Program::OnUpdate()
 
 void Program::OnDrop(const Container<String> &lstFiles)
 {
- 	if (m_pBerkelium)
- 	{
- 		m_pBerkelium->GetWindow()->navigateTo(lstFiles[0].GetASCII(), lstFiles[0].GetLength());
- 	}
+	if (m_pBerkelium)
+	{
+		m_pBerkelium->GetWindow()->navigateTo(lstFiles[0].GetASCII(), lstFiles[0].GetLength());
+	}
 	if (m_pAwesomium)
 	{
 		m_pAwesomium->NavigateTo(lstFiles[0]);

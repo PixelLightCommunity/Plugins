@@ -8,6 +8,7 @@
 #include <PLCore/System/Console.h>
 #include <PLEngine/Application/EngineApplication.h>
 #include <PLScene/Compositing/SceneRenderer.h>
+#include <PLRenderer/Renderer/FontManager.h>
 
 #include "SRPBerkelium.h"
 #include "SRPAwesomium.h"

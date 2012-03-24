@@ -19,7 +19,7 @@ using namespace PLEngine;
 //[-------------------------------------------------------]
 //[ Functions		                                      ]
 //[-------------------------------------------------------]
-SRPAwesomium::SRPAwesomium(EngineApplication &cEngineApplication, Renderer &cRenderer, int nWidth, int nHeight, String sUrl, int nX, int nY, bool bAllowEvents) :
+SRPAwesomium::SRPAwesomium(EngineApplication &cEngineApplication, Renderer &cRenderer, int nWidth, int nHeight, const String &sUrl, int nX, int nY, bool bAllowEvents) :
 	m_cEngineApplication(cEngineApplication),
 	m_cRenderer(cRenderer),
 	m_pVertexBuffer(nullptr),
@@ -443,7 +443,7 @@ void SRPAwesomium::ChangePointerState(bool bDrawPointer)
 }
 
 
-void SRPAwesomium::SetPointerImagePath(String sPointerImagePath, bool bDrawPointer)
+void SRPAwesomium::SetPointerImagePath(const String &sPointerImagePath, bool bDrawPointer)
 {
 	m_bDrawPointer = false;
 	m_sPointerImagePath = sPointerImagePath;
@@ -466,7 +466,7 @@ void SRPAwesomium::DrawPointer(const Vector2 &vPos)
 }
 
 
-void SRPAwesomium::NavigateTo(String sUrl)
+void SRPAwesomium::NavigateTo(const String &sUrl)
 {
 	if (m_bIsActive)
 	{

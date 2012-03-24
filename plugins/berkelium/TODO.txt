@@ -1,3 +1,4 @@
 * keyboard events with continuous pressing repeat
 * stretch resize method for lower resolutions + filtering
 * javascript callbacks
+* scrolling to the left in big jumps creates a buffer overflow (Berkelium)
