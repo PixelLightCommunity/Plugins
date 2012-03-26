@@ -14,6 +14,27 @@ using namespace PLGraphics;
 using namespace PLScene;
 using namespace PLInput;
 using namespace PLEngine;
+using namespace AWESOMIUM;
+
+
+void AWESOMIUM::js_console_callback(awe_webview *caller, const awe_string *message, int line_number, const awe_string *source)
+{
+	System::GetInstance()->GetConsole().Print(String(line_number) + ": " + String(awe_string_get_utf16(message)) + "\n");
+}
+
+
+void AWESOMIUM::js_callback(awe_webview *caller, const awe_string *object_name, const awe_string *callback_name, const awe_jsarray *arguments)
+{
+	System::GetInstance()->GetConsole().Print("object_name: " + String(awe_string_get_utf16(object_name)) + "\n");
+	System::GetInstance()->GetConsole().Print("callback_name: " + String(awe_string_get_utf16(callback_name)) + "\n");
+	System::GetInstance()->GetConsole().Print("parameters: " + String(awe_jsarray_get_size(arguments)) + "\n");
+	for (size_t i = 0; i < awe_jsarray_get_size(arguments); i++)
+	{
+		awe_string *argument = awe_jsvalue_to_string(awe_jsarray_get_element(arguments, i));
+		System::GetInstance()->GetConsole().Print("value: " + String(awe_string_get_utf16(argument)) + "\n");
+		awe_string_destroy(argument); // not needed anymore
+	}
+}
 
 
 //[-------------------------------------------------------]
@@ -66,6 +87,18 @@ SRPAwesomium::SRPAwesomium(EngineApplication &cEngineApplication, Renderer &cRen
 			m_bBufferReady = true;
 			CreateAwesomium();
 			CreateController();
+			//////////////////////////////////////////////////////////////////////////
+			// JavaScript callbacks proof of concept
+			//////////////////////////////////////////////////////////////////////////
+			awe_webview_set_callback_js_console_message(m_pWebView, js_console_callback); // sets javascript console messages callback function
+			awe_string *str_object = awe_string_create_from_ascii(String("Client").GetASCII(), String("Client").GetLength());
+			awe_webview_create_object(m_pWebView, str_object); // creates a object so javascript knows about it
+			awe_string *str_call = awe_string_create_from_ascii(String("setToolBrush").GetASCII(), String("setToolBrush").GetLength());
+			awe_webview_set_object_callback(m_pWebView, str_object, str_call); // set callback for function
+			awe_string_destroy(str_call); // not needed anymore
+			awe_webview_set_callback_js_callback(m_pWebView, js_callback); // get callbacks
+			awe_string_destroy(str_object); // not needed anymore
+			//////////////////////////////////////////////////////////////////////////
 		}
 	}
 	else

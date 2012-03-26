@@ -41,7 +41,7 @@ class Program : public PLEngine::EngineApplication {
 		void DebugToConsole(const PLCore::String &sString);
 
 		SRPBerkelium *m_pBerkelium;
-		SRPAwesomium *m_pAwesomium;
+		AWESOMIUM::SRPAwesomium *m_pAwesomium;
 
 		int m_nBrowserRenderer;
 

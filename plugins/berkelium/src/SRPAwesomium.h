@@ -42,6 +42,21 @@
 
 
 //[-------------------------------------------------------]
+//[ Namescape											  ]
+//[-------------------------------------------------------]
+namespace AWESOMIUM {
+
+
+//[-------------------------------------------------------]
+//[ Functions		                                      ]
+//[-------------------------------------------------------]
+// Debugs javascript error messages to console
+void js_console_callback(awe_webview *caller, const awe_string *message, int line_number, const awe_string *source);
+// Debugs callback messages to console
+void js_callback(awe_webview *caller, const awe_string *object_name, const awe_string *callback_name, const awe_jsarray *arguments);
+
+
+//[-------------------------------------------------------]
 //[ Classes                                               ]
 //[-------------------------------------------------------]
 class SRPAwesomium : public PLScene::SceneRendererPass {
@@ -162,3 +177,6 @@ class SRPAwesomium : public PLScene::SceneRendererPass {
 
 
 };
+
+
+}

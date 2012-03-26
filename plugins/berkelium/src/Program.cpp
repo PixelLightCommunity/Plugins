@@ -9,6 +9,7 @@
 //[-------------------------------------------------------]
 using namespace PLCore;
 using namespace PLScene;
+using namespace AWESOMIUM;
 
 
 //[-------------------------------------------------------]
@@ -23,7 +24,7 @@ pl_implement_class(Program)
 Program::Program(Frontend &cFrontend) : EngineApplication(cFrontend),
 	m_pBerkelium(nullptr),
 	m_pAwesomium(nullptr),
-	m_nBrowserRenderer(1) // 1 = Berkelium | 2 = Awesomium
+	m_nBrowserRenderer(2) // 1 = Berkelium | 2 = Awesomium
 {
 	DebugToConsole("Program initialized..\n\n");
 }
