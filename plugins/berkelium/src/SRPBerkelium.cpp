@@ -71,6 +71,9 @@ SRPBerkelium::SRPBerkelium(EngineApplication &cEngineApplication, Renderer &cRen
 			CreateController();
 			CreateBerkelium();
 			//////////////////////////////////////////////////////////////////////////
+			m_pBerkeliumWindow->addBindOnStartLoading(
+				Berkelium::WideString::point_to(L"jsTest"),
+				Berkelium::Script::Variant::bindFunction(Berkelium::WideString::point_to(L"jsReturnValue"), false));
 			//////////////////////////////////////////////////////////////////////////
 		}
 	}
@@ -106,10 +109,10 @@ SRPBerkelium::~SRPBerkelium()
 }
 
 
-void SRPBerkelium::DebugToConsole(const String &sString)
+void SRPBerkelium::DebugToConsole(const String &sString, bool bTitle)
 {
 	#ifdef _CONSOLE
-		System::GetInstance()->GetConsole().Print(String("SRPBerkelium: ") + sString);
+		System::GetInstance()->GetConsole().Print(String(bTitle ? "SRPBerkelium: " : "") + sString);
 	#endif
 }
 
@@ -492,7 +495,28 @@ void SRPBerkelium::onJavascriptCallback(Window *win, void* replyMsg, URLString o
 	// 		funcName	name of function to call.
 	// 		args		list of variants passed into function.
 	// 		numArgs		number of arguments.
-	DebugToConsole("onJavascriptCallback NEEDS TO BE INPLEMENTED!\n");
+	DebugToConsole("onJavascriptCallback: " + String(replyMsg ? "synchronous" : "asynchronous") + "\n");
+	DebugToConsole("Function name: " + String(funcName.data()) + "\n");
+	for (size_t i = 0; i < numArgs; i++)
+	{
+		WideString jsonStr = toJSON(args[i]);
+		DebugToConsole("Argument: ");
+		if (args[i].type() == Script::Variant::JSSTRING)
+		{
+			DebugToConsole("(string) " + String(args[i].toString().data()), false);
+			DebugToConsole("\n", false);
+		}
+		else
+		{
+			DebugToConsole(String(jsonStr.data()), false);
+			DebugToConsole("\n", false);
+		}
+		Script::toJSON_free(jsonStr);
+	}
+
+	if (replyMsg) {
+		win->synchronousScriptReturn(replyMsg, numArgs ? args[0] : Script::Variant());
+	}
 }
 
 
@@ -521,7 +545,7 @@ void SRPBerkelium::onTooltipChanged(Window *win, WideString text)
 void SRPBerkelium::onConsoleMessage(Window *win, WideString message, WideString sourceId, int line_no)
 {
 	//	Display a javascript message (Maybe an error?) or console.log.
-	DebugToConsole("onConsoleMessage: " + String(message.data()) + "\n");
+	DebugToConsole("onConsoleMessage: " + String(line_no) + " - " + String(message.data()) + "\n");
 }
 
 

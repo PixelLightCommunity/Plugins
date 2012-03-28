@@ -42,6 +42,7 @@
 #include "berkelium/WindowDelegate.hpp"
 #include "berkelium/Context.hpp"
 #include "berkelium/Rect.hpp"
+#include "berkelium/ScriptUtil.hpp"
 
 #include "ARGBtoRGBA_GLSL.h"
 
@@ -99,7 +100,7 @@ class SRPBerkelium : public PLScene::SceneRendererPass, public Berkelium::Window
 	protected:
 
 	private:
-		void DebugToConsole(const PLCore::String &sString);
+		void DebugToConsole(const PLCore::String &sString, bool bTitle = true);
 
 		// Draws the buffers as part of PLScene::SceneRendererPass
 		virtual void Draw(PLRenderer::Renderer &cRenderer, const PLScene::SQCull &cCullQuery) override;
