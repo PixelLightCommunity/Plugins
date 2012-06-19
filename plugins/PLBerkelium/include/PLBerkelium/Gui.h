@@ -6,7 +6,7 @@
 //[-------------------------------------------------------]
 //[ Libraries                                             ]
 //[-------------------------------------------------------]
-#pragma comment(lib, "D:/plice/PLMain/Plugins/PLBerkelium/lib/berkelium.lib") // Should be supported by compiler (if not, include library manually)
+#pragma comment(lib, "lib/berkelium.lib")
 
 
 //[-------------------------------------------------------]

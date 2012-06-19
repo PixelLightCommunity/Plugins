@@ -6,7 +6,7 @@
 //[-------------------------------------------------------]
 //[ Libraries                                             ]
 //[-------------------------------------------------------]
-#pragma comment(lib, "D:/plice/PLMain/Plugins/PLBerkelium/lib/berkelium.lib")
+#pragma comment(lib, "lib/berkelium.lib")
 
 
 //[-------------------------------------------------------]
