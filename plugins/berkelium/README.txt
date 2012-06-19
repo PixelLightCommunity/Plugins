@@ -1,3 +1,7 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! THIS PLUGIN IS DEPRECATED AND WILL BE REMOVED WHEN THE PLBERKELIUM PLUGIN IS FINISHED !!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 SHOWCASE: http://www.youtube.com/watch?v=JmR_dt3dnpQ
 
 In order to build this plugin you will need;

@@ -1,0 +1,35 @@
+>> 19.06.2012
+[IJH]
+- For preview purposes i am releasing the plugin to the repository, there are however big features that still need to be implemented and or tweaked (buffer update stuff, keyboard control events).
+  An usage example will be added to the Examples repository.
+  Documentation on functions and usage will be added when the plugin is nearing completion.
+
+
+
+>> 18.06.2012
+[IJH]
+- Adopted PixelLight src and include folder scheme for plugin headers and source files
+
+
+
+>> 29.05.2012
+[IJH]
+- Added const to code, explained here http://duramecho.com/ComputerInformation/WhyHowCppConst.html
+
+
+
+>> 19.05.2012
+[IJH]
+- Research on global destruction https://groups.google.com/d/topic/berkelium/jssYJ2xrJus/discussion
+
+
+
+>> 07.05.2012
+[IJH]
+- No need for Singleton, discussion http://dev.pixellight.org/forum/viewtopic.php?f=6&t=490
+
+
+
+>> 28.04.2012
+[IJH]
+- Initial creation of plugin project
