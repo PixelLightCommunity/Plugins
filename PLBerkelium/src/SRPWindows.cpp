@@ -46,15 +46,18 @@ SRPWindows::SRPWindows(const String &sName) :
 	m_bIgnoreBufferUpdate(false),
 	m_pWidgets(new HashMap<Berkelium::Widget*, sWidget*>)
 {
-	DebugToConsole("Creating SRPWindows instance..\n");
+	// we need to create a berkelium context
+	// it might be wise to centralize the context back to the Gui class because each context is represented my a Berkelium.exe process on runtime
+	// the only downside of this is when a window crashes it needs to refresh all windows within the context so they will lose their current state
 	CreateBerkeliumContext();
 }
 
 
 SRPWindows::~SRPWindows()
 {
-	DebugToConsole("Terminating..\n");
+	// destroy the context
 	DestroyContext();
+	// destroy the tool tip window
 	DestroyToolTipWindow();
 }
 
@@ -69,6 +72,7 @@ void SRPWindows::Draw(Renderer &cRenderer, const SQCull &cCullQuery)
 {
 	if (m_bReadyToDraw)
 	{
+		// draw the window and widgets if we are ready
 		DrawWindow();
 		DrawWidgets();
 	}
@@ -81,7 +85,7 @@ void SRPWindows::onPaint(Berkelium::Window *win, const unsigned char *sourceBuff
 	{
 		if (m_psWindowsData->bNeedsFullUpdate)
 		{
-			// awaiting a full update disregard all partials ones until the full comes in
+			// awaiting a full update disregard all partials ones until the full one comes in
 			BufferCopyFull(m_pImageBuffer, m_psWindowsData->nFrameWidth, m_psWindowsData->nFrameHeight, sourceBuffer, sourceBufferRect);
 			BufferUploadToGPU();
 			m_psWindowsData->bNeedsFullUpdate = false;
@@ -117,13 +121,14 @@ void SRPWindows::onPaint(Berkelium::Window *win, const unsigned char *sourceBuff
 void SRPWindows::onCreatedWindow(Berkelium::Window *win, Berkelium::Window *newWindow, const Berkelium::Rect &initialRect)
 {
 	DebugToConsole("onCreatedWindow()\n");
-	// should create certain windows on Gui (new context) or this one!
+	/*should create certain windows on Gui (new context) or this one!*/
 	newWindow->destroy(); // discard for now
 }
 
 
 VertexBuffer *SRPWindows::CreateVertexBuffer(const Vector2 &vPosition, const Vector2 &vImageSize)
 {
+	// lets create a vertex buffer
 	VertexBuffer *pVertexBuffer = m_pCurrentRenderer->CreateVertexBuffer();
 	if (pVertexBuffer)
 	{
@@ -179,15 +184,15 @@ VertexBuffer *SRPWindows::CreateVertexBuffer(const Vector2 &vPosition, const Vec
 
 			// Unlock the vertex buffer
 			pVertexBuffer->Unlock();
-
-			DebugToConsole("VertexBuffer created..\n");
 		}
 
+		// return the created vertex buffer
 		return pVertexBuffer;
 	}
 	else
 	{
-		return nullptr; // Error!
+		// something when wrong so we return nothing
+		return nullptr;
 	}
 }
 
@@ -200,9 +205,11 @@ void SRPWindows::SetRenderer(Renderer *pRenderer)
 
 ProgramWrapper *SRPWindows::CreateProgramWrapper()
 {
+	// declare vertex and fragment shader
 	String sVertexShaderSourceCode;
 	String sFragmentShaderSourceCode;
 
+	// account for OpenGL version
 	if (m_pCurrentRenderer->GetAPI() == "OpenGL ES 2.0")
 	{
 		sVertexShaderSourceCode   = "#version 100\n" + sVertexShaderSourceCodeGLSL;
@@ -214,17 +221,21 @@ ProgramWrapper *SRPWindows::CreateProgramWrapper()
 		sFragmentShaderSourceCode = "#version 110\n" + Shader::RemovePrecisionQualifiersFromGLSL(sFragmentShaderSourceCodeGLSL);
 	}
 
+	// create the vertex and fragment shader
 	VertexShader *pVertexShader = m_pCurrentRenderer->GetShaderLanguage(m_pCurrentRenderer->GetDefaultShaderLanguage())->CreateVertexShader(sVertexShaderSourceCode, "arbvp1");
 	FragmentShader *pFragmentShader = m_pCurrentRenderer->GetShaderLanguage(m_pCurrentRenderer->GetDefaultShaderLanguage())->CreateFragmentShader(sFragmentShaderSourceCode, "arbfp1");
+
+	// create the program wrapper
 	ProgramWrapper *pProgram = static_cast<ProgramWrapper*>(m_pCurrentRenderer->GetShaderLanguage(m_pCurrentRenderer->GetDefaultShaderLanguage())->CreateProgram(pVertexShader, pFragmentShader));
 
 	if (pProgram)
 	{
-		DebugToConsole("ProgramWrapper created..\n");
+		// return the created program wrapper
 		return pProgram;
 	}
 	else
 	{
+		// return nothing because the program wrapper could not be created
 		return nullptr;
 	}
 }
@@ -232,6 +243,8 @@ ProgramWrapper *SRPWindows::CreateProgramWrapper()
 
 bool SRPWindows::UpdateVertexBuffer(VertexBuffer *pVertexBuffer, const Vector2 &vPosition, const Vector2 &vImageSize)
 {
+	/*i am not sure yet if this method is right for this use case*/
+
 	if (!pVertexBuffer)
 	{
 		DebugToConsole("VertexBuffer not valid!\n");
@@ -321,37 +334,47 @@ bool SRPWindows::UpdateVertexBuffer(VertexBuffer *pVertexBuffer, const Vector2 &
 
 bool SRPWindows::Initialize(Renderer *pRenderer, const Vector2 &vPosition, const Vector2 &vImageSize)
 {
+	// set the renderer
 	SetRenderer(pRenderer);
 
+	// set the vertex buffer
 	m_pVertexBuffer = CreateVertexBuffer(vPosition, vImageSize);
+
+	// set the program wrapper
 	m_pProgramWrapper = CreateProgramWrapper();
 
 	if (m_pVertexBuffer && m_pProgramWrapper)
 	{
+		// create the image
 		m_cImage = Image::CreateImage(DataByte, ColorRGBA, Vector3i(m_psWindowsData->nFrameWidth, m_psWindowsData->nFrameHeight, 1));
+		// create the texture buffer
 		m_pTextureBuffer = reinterpret_cast<TextureBuffer*>(pRenderer->CreateTextureBuffer2D(m_cImage, TextureBuffer::Unknown, 0));
 
 		if (m_pTextureBuffer)
 		{
+			// create the image buffer
 			m_pImageBuffer = m_cImage.GetBuffer()->GetData();
 
 			if (m_pImageBuffer)
 			{
+				// create a berkelium window
 				CreateBerkeliumWindow();
+				// set the default window settings
 				SetWindowSettings();
+				// set the default callback functions
 				SetDefaultCallBackFunctions();
 				m_bInitialized = true;
 				return true;
 			}
-			// imagebuffer could not be created
+			// image buffer could not be created
 			return false;
 		}
-		// texturebuffer could not be created
+		// texture buffer could not be created
 		return false;
 	}
 	else
 	{
-		// vertexbuffer or programwrapper could not be created
+		// vertex buffer or program wrapper could not be created
 		return false;
 	}
 }
@@ -359,6 +382,7 @@ bool SRPWindows::Initialize(Renderer *pRenderer, const Vector2 &vPosition, const
 
 void SRPWindows::DestroyInstance() const
 {
+	// cleanup
 	delete this;
 }
 
@@ -367,10 +391,16 @@ void SRPWindows::DrawWindow()
 {
 	if (m_bInitialized && m_psWindowsData->bIsVisable) // should suffice
 	{
+		// set the program
 		m_pCurrentRenderer->SetProgram(m_pProgramWrapper);
-		m_pCurrentRenderer->SetRenderState(RenderState::BlendEnable, true); // allows for transparency
+		// set the render state to allow for transparency
+		m_pCurrentRenderer->SetRenderState(RenderState::BlendEnable, true);
 
-		{	// implement dynamic scaling?
+		/*
+		possible change
+		- let (re)sizing be handled by the program uniform, see http://dev.pixellight.org/forum/viewtopic.php?f=6&t=503
+		*/
+		{
 			const Rectangle &cViewportRect = m_pCurrentRenderer->GetViewport();
 			float fX1 = cViewportRect.vMin.x;
 			float fY1 = cViewportRect.vMin.y;
@@ -380,6 +410,7 @@ void SRPWindows::DrawWindow()
 			Matrix4x4 m_mObjectSpaceToClipSpace;
 			m_mObjectSpaceToClipSpace.OrthoOffCenter(fX1, fX2, fY1, fY2, -1.0f, 1.0f);
 
+			// create program uniform
 			ProgramUniform *pProgramUniform = m_pProgramWrapper->GetUniform("ObjectSpaceToClipSpaceMatrix");
 			if (pProgramUniform)
 				pProgramUniform->Set(m_mObjectSpaceToClipSpace);
@@ -387,6 +418,7 @@ void SRPWindows::DrawWindow()
 			const int nTextureUnit = m_pProgramWrapper->Set("TextureMap", m_pTextureBuffer);
 			if (nTextureUnit >= 0)
 			{
+				// set sampler states
 				m_pCurrentRenderer->SetSamplerState(nTextureUnit, Sampler::AddressU, TextureAddressing::Clamp);
 				m_pCurrentRenderer->SetSamplerState(nTextureUnit, Sampler::AddressV, TextureAddressing::Clamp);
 				m_pCurrentRenderer->SetSamplerState(nTextureUnit, Sampler::MagFilter, TextureFiltering::None);
@@ -394,10 +426,12 @@ void SRPWindows::DrawWindow()
 				m_pCurrentRenderer->SetSamplerState(nTextureUnit, Sampler::MipFilter, TextureFiltering::None);
 			}
 
+			// set vertex attributes
 			m_pProgramWrapper->Set("VertexPosition", m_pVertexBuffer, VertexBuffer::Position);
 			m_pProgramWrapper->Set("VertexTexCoord", m_pVertexBuffer, VertexBuffer::TexCoord);
 		}
 
+		// draw primitives
 		m_pCurrentRenderer->DrawPrimitives(Primitive::TriangleStrip, 0, 4);
 	}
 }
@@ -414,6 +448,7 @@ void SRPWindows::BufferCopyFull(uint8 *pImageBuffer, int &nWidth, int &nHeight, 
 
 bool SRPWindows::AddSceneRenderPass(SceneRenderer *pSceneRenderer)
 {
+	// add scene render pass
 	if (pSceneRenderer->Add(*reinterpret_cast<SceneRendererPass*>(this)))
 	{
 		m_pCurrentSceneRenderer = pSceneRenderer;
@@ -430,6 +465,7 @@ bool SRPWindows::RemoveSceneRenderPass()
 {
 	if (m_pCurrentSceneRenderer)
 	{
+		// remove scene render pass
 		if (m_pCurrentSceneRenderer->Remove(*reinterpret_cast<SceneRendererPass*>(this)))
 		{
 			return true;
@@ -445,8 +481,10 @@ bool SRPWindows::RemoveSceneRenderPass()
 
 void SRPWindows::CreateBerkeliumWindow()
 {
+	// check if berkelium window is already created
 	if (!m_pWindow)
 	{
+		// create berkelium window
 		m_pWindow = Berkelium::Window::create(m_pBerkeliumContext);
 	}
 }
@@ -480,7 +518,9 @@ void SRPWindows::BufferUploadToGPU()
 {
 	if (m_bInitialized)
 	{
+		// upload data to GPU
 		m_pTextureBuffer->CopyDataFrom(0, TextureBuffer::R8G8B8A8, m_pImageBuffer);
+		// set state for future usage
 		if (!m_bReadyToDraw) m_bReadyToDraw = true;
 	}
 }
@@ -569,6 +609,7 @@ void SRPWindows::MoveToFront()
 {
 	if (m_bInitialized && m_pCurrentSceneRenderer)
 	{
+		// move scene render pass to front
 		m_pCurrentSceneRenderer->MoveElement(m_pCurrentSceneRenderer->GetIndex(*reinterpret_cast<SceneRendererPass*>(this)), m_pCurrentSceneRenderer->GetNumOfElements() - 1);
 	}
 }
@@ -607,6 +648,7 @@ void SRPWindows::onScriptAlert(Berkelium::Window *win, Berkelium::WideString mes
 void SRPWindows::onCrashed(Berkelium::Window *win)
 {
 	DebugToConsole("onCrashed()\n");
+	// the window has crashed so we should recreate it
 	RecreateWindow();
 }
 
@@ -614,7 +656,7 @@ void SRPWindows::onCrashed(Berkelium::Window *win)
 void SRPWindows::onUnresponsive(Berkelium::Window *win)
 {
 	DebugToConsole("onUnresponsive()\n");
-	//RecreateWindow();
+	// RecreateWindow();
 }
 
 
@@ -633,10 +675,15 @@ void SRPWindows::onAddressBarChanged(Berkelium::Window *win, Berkelium::URLStrin
 void SRPWindows::RecreateWindow()
 {
 	m_bInitialized = false;
+	// destroy the window
 	DestroyWindow();
+	// destroy the context
 	DestroyContext();
+	// create a new context
 	CreateBerkeliumContext();
+	// create a new window
 	CreateBerkeliumWindow();
+	// set the window settings
 	SetWindowSettings();
 	m_bInitialized = true;
 }
@@ -677,8 +724,11 @@ void SRPWindows::DestroyWindow()
 {
 	if (m_pWindow)
 	{
+		// stop window navigation
 		m_pWindow->stop();
+		// unfocus window
 		m_pWindow->unfocus();
+		// destroy window
 		m_pWindow->destroy();
 		m_pWindow = nullptr;
 	}
@@ -698,6 +748,7 @@ Vector2i SRPWindows::GetPosition() const
 {
 	if (m_psWindowsData->nXPos && m_psWindowsData->nYPos)
 	{
+		// return the position of the window
 		return Vector2i(m_psWindowsData->nXPos, m_psWindowsData->nYPos);
 	}
 	else
@@ -711,6 +762,7 @@ Vector2i SRPWindows::GetSize() const
 {
 	if (m_psWindowsData->nFrameWidth && m_psWindowsData->nFrameHeight)
 	{
+		// return the size of the window
 		return Vector2i(m_psWindowsData->nFrameWidth, m_psWindowsData->nFrameHeight);
 	}
 	else
@@ -730,6 +782,7 @@ int SRPWindows::GetSceneRenderPassIndex()
 {
 	if (m_pCurrentSceneRenderer)
 	{
+		// return scene render pass index
 		return m_pCurrentSceneRenderer->GetIndex(*reinterpret_cast<SceneRendererPass*>(this));
 	}
 	else
@@ -750,8 +803,10 @@ void SRPWindows::onJavascriptCallback(Berkelium::Window *win, void *replyMsg, Be
 	// 		args		list of variants passed into function.
 	// 		numArgs		number of arguments.
 
+	// create new callback
 	sCallBack *pCallBack = new sCallBack;
 
+	// set the callback attributes
 	pCallBack->pWindow = win;
 	pCallBack->sFunctionName = funcName.data();
 	pCallBack->nNumberOfParameters = numArgs;
@@ -761,9 +816,11 @@ void SRPWindows::onJavascriptCallback(Berkelium::Window *win, void *replyMsg, Be
 
 	String sParams = "";
 
+	// loop trough the arguments
 	for (size_t i = 0; i < numArgs; i++)
 	{
 		Berkelium::WideString jsonStr = toJSON(args[i]);
+		/*add additional argument types*/
 		if (args[i].type() == Berkelium::Script::Variant::JSBOOLEAN)
 		{
 			DebugToConsole("!!I AM A STRING '" + String(args[i].toString().data()) + "'\n");
@@ -776,27 +833,36 @@ void SRPWindows::onJavascriptCallback(Berkelium::Window *win, void *replyMsg, Be
 		Berkelium::Script::toJSON_free(jsonStr);
 	}
 
+	// create dynamic function pointer
 	DynFuncPtr pDynFuncPtr = m_pCallBackFunctions->Get(pCallBack->sFunctionName);
 	if (pDynFuncPtr)
 	{
+		// check if there is a return type
 		if (pDynFuncPtr->GetReturnTypeID() == TypeNull || pDynFuncPtr->GetReturnTypeID() == TypeInvalid)
 		{
+			// call the function without a return
 			pDynFuncPtr->Call(sParams);
 		}
 		else
 		{
+			// call the function with a return
 			String sResult = pDynFuncPtr->CallWithReturn(sParams);
-			// send result back to javascript
-			if (replyMsg) {
+
+			// check if javascript is waiting for a response
+			if (replyMsg)
+			{
+				// send result back to javascript
 				win->synchronousScriptReturn(replyMsg, Berkelium::Script::Variant(sResult.GetUnicode()));
 			}
 		}
 	}
 
+	// check if the callback is part of the default ones
 	if (pCallBack->sFunctionName == DRAGWINDOW ||
 		pCallBack->sFunctionName == HIDEWINDOW ||
 		pCallBack->sFunctionName == CLOSEWINDOW)
 	{
+		// add the callback to the hashmap so that the Gui class can process it
 		m_pDefaultCallBacks->Add(pCallBack->sFunctionName, pCallBack);
 	}
 }
@@ -804,6 +870,8 @@ void SRPWindows::onJavascriptCallback(Berkelium::Window *win, void *replyMsg, Be
 
 void SRPWindows::MoveWindow(const int &nX, const int &nY)
 {
+	/*i am not sure yet if this method is right for this use case*/
+
 	m_psWindowsData->nXPos = nX;
 	m_psWindowsData->nYPos = nY;
 	UpdateVertexBuffer(m_pVertexBuffer, Vector2(float(nX), float(nY)), Vector2(float(m_psWindowsData->nFrameWidth), float(m_psWindowsData->nFrameHeight)));
@@ -816,8 +884,10 @@ void SRPWindows::onTooltipChanged(Berkelium::Window *win, Berkelium::WideString 
 	{
 		if (!m_pToolTip)
 		{
+			// tool tip needs to be created
 			SetupToolTipWindow();
 		}
+		// set the tooltip
 		SetToolTip(String(text.data()));
 	}
 }
@@ -825,6 +895,8 @@ void SRPWindows::onTooltipChanged(Berkelium::Window *win, Berkelium::WideString 
 
 void SRPWindows::SetupToolTipWindow()
 {
+	// create tool tip window and set data
+	/*this needs to be more refined and structured its just a proof on concept*/
 	m_pToolTip = new SRPWindows("ToolTip");
 	m_pToolTip->GetData()->bIsVisable = false;
 	m_pToolTip->GetData()->sUrl = "file:///D:/plice/PLMain/Code/GameClient/bin/tooltip.html";
@@ -838,12 +910,15 @@ void SRPWindows::SetupToolTipWindow()
 	m_pToolTip->GetData()->bNeedsFullUpdate = true;
 	m_pToolTip->GetData()->bLoaded = false;
 
+	// initialize the tool tip
 	if (m_pToolTip->Initialize(m_pCurrentRenderer, Vector2::Zero, Vector2(float(512), float(64))))
 	{
+		// add the scene render pass for the tool tip
 		m_pToolTip->AddSceneRenderPass(m_pCurrentSceneRenderer);
 	}
 	else
 	{
+		// destroy the left overs because the tooltip could not be initialized
 		DestroyToolTipWindow();
 	}
 }
@@ -862,6 +937,8 @@ void SRPWindows::DestroyToolTipWindow()
 
 void SRPWindows::SetToolTip(const String &sText)
 {
+	/*this is more or less a proof of concept and should be refined and optimized*/
+
 	if (m_pToolTip)
 	{
 		if (sText == "")
@@ -885,8 +962,10 @@ void SRPWindows::SetToolTip(const String &sText)
 void SRPWindows::SetToolTipEnabled(const bool &bEnabled)
 {
 	m_bToolTipEnabled = bEnabled;
+
 	if (!bEnabled)
 	{
+		// clear tool tip because we disabled it
 		SetToolTip("");
 	}
 }
@@ -912,6 +991,11 @@ sCallBack *SRPWindows::GetCallBack(const String &sKey) const
 
 void SRPWindows::ResizeWindow(const int &nWidth, const int &nHeight)
 {
+	/*
+	possible change
+	- let (re)sizing be handled by the program uniform, see http://dev.pixellight.org/forum/viewtopic.php?f=6&t=503
+	*/
+
 	m_bIgnoreBufferUpdate = true; // still not optimal
 
 	m_bReadyToDraw = false; // still not optimal
@@ -939,6 +1023,7 @@ bool SRPWindows::AddCallBackFunction(const DynFuncPtr pDynFunc, String sJSFuncti
 {
 	if (pDynFunc)
 	{
+		// create function descriptor
 		const FuncDesc *pFuncDesc = pDynFunc->GetDesc();
 		if (pFuncDesc)
 		{
@@ -946,15 +1031,19 @@ bool SRPWindows::AddCallBackFunction(const DynFuncPtr pDynFunc, String sJSFuncti
 			{
 				if (sJSFunctionName == "")
 				{
+					// the function name is not defined so we use the method name
 					sJSFunctionName = pFuncDesc->GetName();
 				}
+				// we bind the javascript function
 				GetBerkeliumWindow()->addBindOnStartLoading(Berkelium::WideString::point_to(sJSFunctionName.GetUnicode()), Berkelium::Script::Variant::bindFunction(Berkelium::WideString::point_to(pFuncDesc->GetName().GetUnicode()), bHasReturn));
+
+				// we add the function pointer to the hashmap
 				m_pCallBackFunctions->Add(pFuncDesc->GetName(), pDynFunc);
 				return true;
 			}
 			else
 			{
-				DebugToConsole("RTTI callback function" + pFuncDesc->GetName() + " already exists in list\n");
+				// the function specified already exists in list
 			}
 		}
 	}
@@ -964,7 +1053,11 @@ bool SRPWindows::AddCallBackFunction(const DynFuncPtr pDynFunc, String sJSFuncti
 
 void SRPWindows::onRunFileChooser(Berkelium::Window *win, int mode, Berkelium::WideString title, Berkelium::FileString defaultFile)
 {
-	DebugToConsole("onRunFileChooser()\n"); // is this implemented at all? https://groups.google.com/d/topic/berkelium/vKGuEpt9CbI/discussion
+	DebugToConsole("onRunFileChooser()\n");
+	/*
+	is this implemented at all? https://groups.google.com/d/topic/berkelium/vKGuEpt9CbI/discussion
+		- awaiting new build for berkelium
+	*/
 }
 
 
@@ -976,6 +1069,7 @@ bool SRPWindows::RemoveCallBack(const String &sKey) const
 
 void SRPWindows::SetDefaultCallBackFunctions()
 {
+	// bind the default javascript functions for use
 	GetBerkeliumWindow()->addBindOnStartLoading(Berkelium::WideString::point_to(String(DRAGWINDOW).GetUnicode()), Berkelium::Script::Variant::bindFunction(Berkelium::WideString::point_to(String(DRAGWINDOW).GetUnicode()), false));
 	GetBerkeliumWindow()->addBindOnStartLoading(Berkelium::WideString::point_to(String(HIDEWINDOW).GetUnicode()), Berkelium::Script::Variant::bindFunction(Berkelium::WideString::point_to(String(HIDEWINDOW).GetUnicode()), false));
 	GetBerkeliumWindow()->addBindOnStartLoading(Berkelium::WideString::point_to(String(CLOSEWINDOW).GetUnicode()), Berkelium::Script::Variant::bindFunction(Berkelium::WideString::point_to(String(CLOSEWINDOW).GetUnicode()), false));
@@ -984,29 +1078,28 @@ void SRPWindows::SetDefaultCallBackFunctions()
 
 void SRPWindows::onWidgetCreated(Berkelium::Window *win, Berkelium::Widget *newWidget, int zIndex)
 {
-	DebugToConsole("onWidgetCreated()\n");
-	// create widgets and store them 1
-
+	// we create the widget
 	sWidget *psWidget = new sWidget;
 
+	// we set the data
 	psWidget->bNeedsFullUpdate = true;
 	psWidget->nXPos = m_psWindowsData->nXPos;
 	psWidget->nYPos = m_psWindowsData->nYPos;
 	psWidget->pProgramWrapper = CreateProgramWrapper();
 	psWidget->pVertexBuffer = CreateVertexBuffer(Vector2::Zero, Vector2::Zero);
 
+	// we add the widget to the hashmap
 	m_pWidgets->Add(newWidget, psWidget);
 }
 
 
 void SRPWindows::onWidgetDestroyed(Berkelium::Window *win, Berkelium::Widget *wid)
 {
-	DebugToConsole("onWidgetDestroyed()\n");
-	// destroy the widget and remove 5
-
+	// get the widget that got the destroy callback
 	sWidget *psWidget = m_pWidgets->Get(wid);
 	if (psWidget)
 	{
+		// remove it
 		m_pWidgets->Remove(wid);
 	}
 }
@@ -1014,15 +1107,20 @@ void SRPWindows::onWidgetDestroyed(Berkelium::Window *win, Berkelium::Widget *wi
 
 void SRPWindows::onWidgetMove(Berkelium::Window *win, Berkelium::Widget *wid, int newX, int newY)
 {
-	DebugToConsole("onWidgetMove()\n");
-	// move the widget 3
-
+	// get the widget that got the move callback
 	sWidget *psWidget = m_pWidgets->Get(wid);
 	if (psWidget)
 	{
+		// set the new position data
 		psWidget->nXPos = m_psWindowsData->nXPos + newX;
 		psWidget->nYPos = m_psWindowsData->nYPos + newY;
 
+		/*
+		possible change
+		- let (re)sizing be handled by the program uniform, see http://dev.pixellight.org/forum/viewtopic.php?f=6&t=503
+		*/
+
+		// update the buffer
 		UpdateVertexBuffer(psWidget->pVertexBuffer, Vector2(float(psWidget->nXPos), float(psWidget->nYPos)), Vector2(float(psWidget->nWidth), float(psWidget->nHeight)));
 	}
 }
@@ -1030,9 +1128,7 @@ void SRPWindows::onWidgetMove(Berkelium::Window *win, Berkelium::Widget *wid, in
 
 void SRPWindows::onWidgetPaint(Berkelium::Window *win, Berkelium::Widget *wid, const unsigned char *sourceBuffer, const Berkelium::Rect &sourceBufferRect, size_t numCopyRects, const Berkelium::Rect *copyRects, int dx, int dy, const Berkelium::Rect &scrollRect)
 {
-	DebugToConsole("onWidgetPaint()\n");
-	// paint stuff for widget 4
-
+	// get the widget that got the paint callback
 	sWidget *psWidget = m_pWidgets->Get(wid);
 	if (psWidget)
 	{
@@ -1073,19 +1169,27 @@ void SRPWindows::onWidgetPaint(Berkelium::Window *win, Berkelium::Widget *wid, c
 
 void SRPWindows::onWidgetResize(Berkelium::Window *win, Berkelium::Widget *wid, int newWidth, int newHeight)
 {
-	DebugToConsole("onWidgetResize()\n");
-	// resize widget 2
-
+	// get the widget that got the resize callback
 	sWidget *psWidget = m_pWidgets->Get(wid);
 	if (psWidget)
 	{
+		// set the new size
 		psWidget->nWidth = newWidth;
 		psWidget->nHeight = newHeight;
 
+		/*
+		possible change
+		- let (re)sizing be handled by the program uniform, see http://dev.pixellight.org/forum/viewtopic.php?f=6&t=503
+		*/
+
+		// update the buffer
 		UpdateVertexBuffer(psWidget->pVertexBuffer, Vector2(float(psWidget->nXPos), float(psWidget->nYPos)), Vector2(float(psWidget->nWidth), float(psWidget->nHeight)));
 
+		// recreate the image
 		psWidget->cImage = Image::CreateImage(DataByte, ColorRGBA, Vector3i(psWidget->nWidth, psWidget->nHeight, 1));
+		// recreate the texture buffer
 		psWidget->pTextureBuffer = reinterpret_cast<TextureBuffer*>(m_pCurrentRenderer->CreateTextureBuffer2D(psWidget->cImage, TextureBuffer::Unknown, 0));
+		// recreate the image buffer
 		psWidget->pImageBuffer = psWidget->cImage.GetBuffer()->GetData();
 	}
 }
@@ -1093,10 +1197,17 @@ void SRPWindows::onWidgetResize(Berkelium::Window *win, Berkelium::Widget *wid, 
 
 void SRPWindows::DrawWidget(sWidget *psWidget)
 {
+	// set program
 	m_pCurrentRenderer->SetProgram(psWidget->pProgramWrapper);
-	m_pCurrentRenderer->SetRenderState(RenderState::BlendEnable, true); // allows for transparency
+	// set render state to allow for transparency
+	m_pCurrentRenderer->SetRenderState(RenderState::BlendEnable, true);
 
-	{	// implement dynamic scaling?
+	/*
+	possible change
+	- let (re)sizing be handled by the program uniform, see http://dev.pixellight.org/forum/viewtopic.php?f=6&t=503
+	*/
+
+	{
 		const Rectangle &cViewportRect = m_pCurrentRenderer->GetViewport();
 		float fX1 = cViewportRect.vMin.x;
 		float fY1 = cViewportRect.vMin.y;
@@ -1106,6 +1217,7 @@ void SRPWindows::DrawWidget(sWidget *psWidget)
 		Matrix4x4 m_mObjectSpaceToClipSpace;
 		m_mObjectSpaceToClipSpace.OrthoOffCenter(fX1, fX2, fY1, fY2, -1.0f, 1.0f);
 
+		// create the program uniform
 		ProgramUniform *pProgramUniform = psWidget->pProgramWrapper->GetUniform("ObjectSpaceToClipSpaceMatrix");
 		if (pProgramUniform)
 			pProgramUniform->Set(m_mObjectSpaceToClipSpace);
@@ -1120,21 +1232,27 @@ void SRPWindows::DrawWidget(sWidget *psWidget)
 			m_pCurrentRenderer->SetSamplerState(nTextureUnit, Sampler::MipFilter, TextureFiltering::None);
 		}
 
+		// set the vertex attributes
 		psWidget->pProgramWrapper->Set("VertexPosition", psWidget->pVertexBuffer, VertexBuffer::Position);
 		psWidget->pProgramWrapper->Set("VertexTexCoord", psWidget->pVertexBuffer, VertexBuffer::TexCoord);
 	}
 
+	// draw the primitives
 	m_pCurrentRenderer->DrawPrimitives(Primitive::TriangleStrip, 0, 4);
 }
 
 
 void SRPWindows::DrawWidgets()
 {
+	// check if there are widgets that need to be drawn
 	if (m_pWidgets->GetNumOfElements() > 0)
 	{
+		// get the iterator for the widgets
 		Iterator<sWidget*> cIterator = m_pWidgets->GetIterator();
+		// loop trough the widgets
 		while (cIterator.HasNext())
 		{
+			// draw the widget
 			DrawWidget(cIterator.Next());
 		}
 	}
@@ -1155,6 +1273,7 @@ Vector2i SRPWindows::GetRelativeMousePositionWidget(const sWidget *psWidget, con
 
 void SRPWindows::ExecuteJavascript(const String &sJavascript) const
 {
+	// execute the javascript function
 	GetBerkeliumWindow()->executeJavascript(Berkelium::WideString::point_to(sJavascript.GetUnicode()));
 }
 
