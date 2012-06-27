@@ -1,3 +1,9 @@
+>> 27.06.2012
+[IJH]
+- Added comments to source so that its more easier to understand certain structural choices in methods.
+
+
+
 >> 19.06.2012
 [IJH]
 - For preview purposes i am releasing the plugin to the repository, there are however big features that still need to be implemented and or tweaked (buffer update stuff, keyboard control events).
