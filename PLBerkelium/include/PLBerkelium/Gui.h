@@ -46,7 +46,7 @@ namespace PLBerkelium {
 //[-------------------------------------------------------]
 //[ Defines                                               ]
 //[-------------------------------------------------------]
-#define DUMMYWINDOW "berkeliumdummywindow"
+#define BERKELIUMDUMMYWINDOW "berkeliumdummywindow"
 
 
 //[-------------------------------------------------------]

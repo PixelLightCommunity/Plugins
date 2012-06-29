@@ -212,13 +212,13 @@ ProgramWrapper *SRPWindows::CreateProgramWrapper()
 	// account for OpenGL version
 	if (m_pCurrentRenderer->GetAPI() == "OpenGL ES 2.0")
 	{
-		sVertexShaderSourceCode   = "#version 100\n" + sVertexShaderSourceCodeGLSL;
-		sFragmentShaderSourceCode = "#version 100\n" + sFragmentShaderSourceCodeGLSL;
+		sVertexShaderSourceCode   = "#version 100\n" + sBerkeliumVertexShaderSourceCodeGLSL;
+		sFragmentShaderSourceCode = "#version 100\n" + sBerkeliumFragmentShaderSourceCodeGLSL;
 	}
 	else
 	{
-		sVertexShaderSourceCode   = "#version 110\n" + Shader::RemovePrecisionQualifiersFromGLSL(sVertexShaderSourceCodeGLSL);
-		sFragmentShaderSourceCode = "#version 110\n" + Shader::RemovePrecisionQualifiersFromGLSL(sFragmentShaderSourceCodeGLSL);
+		sVertexShaderSourceCode   = "#version 110\n" + Shader::RemovePrecisionQualifiersFromGLSL(sBerkeliumVertexShaderSourceCodeGLSL);
+		sFragmentShaderSourceCode = "#version 110\n" + Shader::RemovePrecisionQualifiersFromGLSL(sBerkeliumFragmentShaderSourceCodeGLSL);
 	}
 
 	// create the vertex and fragment shader
@@ -1275,6 +1275,12 @@ void SRPWindows::ExecuteJavascript(const String &sJavascript) const
 {
 	// execute the javascript function
 	GetBerkeliumWindow()->executeJavascript(Berkelium::WideString::point_to(sJavascript.GetUnicode()));
+}
+
+
+bool SRPWindows::IsLoaded() const
+{
+	return m_psWindowsData->bLoaded;
 }
 
 

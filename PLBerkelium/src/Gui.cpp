@@ -160,6 +160,7 @@ void Gui::DestroyWindows()
 
 void Gui::Initialize()
 {
+	// we try to initialize berkelium
 	m_bBerkeliumInitialized = Berkelium::init(Berkelium::FileString::empty());
 	if (m_bBerkeliumInitialized)
 	{
@@ -189,7 +190,7 @@ Berkelium::Window *Gui::GetBerkeliumWindow(const String &sName) const
 	{
 		// we should return the berkelium window from the dummy window to prevent crashes on called functions
 		// the end user should always verify that the returned object is the right one
-		return m_pWindows->Get(DUMMYWINDOW)->GetBerkeliumWindow();
+		return m_pWindows->Get(BERKELIUMDUMMYWINDOW)->GetBerkeliumWindow();
 	}
 	else
 	{
@@ -239,7 +240,7 @@ sWindowsData *Gui::GetWindowData(const String &sName) const
 	{
 		// we should return the data from the dummy window to prevent crashes on called functions
 		// the end user should always verify that the returned data is the right one
-		return m_pWindows->Get(DUMMYWINDOW)->GetData();
+		return m_pWindows->Get(BERKELIUMDUMMYWINDOW)->GetData();
 	}
 	else
 	{
@@ -252,7 +253,7 @@ sWindowsData *Gui::GetWindowData(const String &sName) const
 void Gui::AddDummyWindow()
 {
 	// we create the window
-	SRPWindows *pSRPWindows = new SRPWindows(DUMMYWINDOW);
+	SRPWindows *pSRPWindows = new SRPWindows(BERKELIUMDUMMYWINDOW);
 
 	// we assign data to it
 	pSRPWindows->GetData()->bIsVisable = false;
@@ -267,13 +268,13 @@ void Gui::AddDummyWindow()
 	pSRPWindows->CreateBerkeliumWindow();
 
 	// we add the created dummy window to the hashmap
-	m_pWindows->Add(DUMMYWINDOW, pSRPWindows);
+	m_pWindows->Add(BERKELIUMDUMMYWINDOW, pSRPWindows);
 }
 
 
 bool Gui::RemoveWindow(const String &sName)
 {
-	if (sName == DUMMYWINDOW)
+	if (sName == BERKELIUMDUMMYWINDOW)
 	{
 		// we should never remove the dummy window
 		return false;
@@ -321,7 +322,7 @@ SRPWindows *Gui::GetWindow(const String &sName) const
 	{
 		// we should return the dummy window to prevent crashes on called functions
 		// the end user should always verify that the returned window is the right one
-		return m_pWindows->Get(DUMMYWINDOW);
+		return m_pWindows->Get(BERKELIUMDUMMYWINDOW);
 	}
 	else
 	{
@@ -845,7 +846,7 @@ void Gui::KeyboardEvents(Control &cControl)
 
 bool Gui::SetWindowVisible(const String &sName, const bool &bVisible)
 {
-	if (sName == DUMMYWINDOW)
+	if (sName == BERKELIUMDUMMYWINDOW)
 	{
 		// we should not do this on the dummy window
 		return false;

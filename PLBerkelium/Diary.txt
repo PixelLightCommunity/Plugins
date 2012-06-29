@@ -1,3 +1,11 @@
+>> 29.06.2012
+[IJH]
+- Added a method for the user to check if a page has loaded.
+- Some small changes where made to prevent naming conflicts between PLBerkelium and PLAwesomium, should someone decide to run both plugins in one project.
+  (Perhaps for a future benchmark project of some sort)
+
+
+
 >> 27.06.2012
 [IJH]
 - Added comments to source so that its more easier to understand certain structural choices in methods.

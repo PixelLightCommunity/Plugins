@@ -11,7 +11,7 @@
 //[ Vertex shader source code                             ]
 //[-------------------------------------------------------]
 // GLSL (OpenGL 2.0 ("#version 110") and OpenGL ES 2.0 ("#version 100")) vertex shader source code, "#version" is added by hand
-static const PLCore::String sVertexShaderSourceCodeGLSL = STRINGIFY(
+static const PLCore::String sBerkeliumVertexShaderSourceCodeGLSL = STRINGIFY(
 // Attributes
 attribute highp vec3 VertexPosition;	// Object space vertex position input
 attribute lowp  vec2 VertexTexCoord;	// Vertex texture coordinate input
@@ -39,7 +39,7 @@ void main()
 //[ Fragment shader source code                           ]
 //[-------------------------------------------------------]
 // GLSL (OpenGL 2.0 ("#version 110") and OpenGL ES 2.0 ("#version 100")) fragment shader source code, "#version" is added by hand
-static const PLCore::String sFragmentShaderSourceCodeGLSL = STRINGIFY(
+static const PLCore::String sBerkeliumFragmentShaderSourceCodeGLSL = STRINGIFY(
 // Attributes
 varying lowp vec2 VertexTexCoordVS;	// Interpolated vertex texture coordinate input from vertex shader
 

@@ -143,6 +143,7 @@ class SRPWindows : public PLScene::SceneRendererPass, public Berkelium::WindowDe
 		PLBERKELIUM_API PLCore::HashMap<Berkelium::Widget*, sWidget*> *GetWidgets() const;
 		PLBERKELIUM_API PLMath::Vector2i GetRelativeMousePositionWidget(const sWidget *psWidget, const PLMath::Vector2i &vMousePos) const;
 		PLBERKELIUM_API void ExecuteJavascript(const PLCore::String &sJavascript) const;
+		PLBERKELIUM_API bool IsLoaded() const;
 
 	protected:
 
