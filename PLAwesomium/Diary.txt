@@ -1,0 +1,14 @@
+>> 29.06.2012
+[IJH]
+- Most of the features for PLAwesomium are now implemented, form objects with pop-up such as drop-down menus need to be looked at.
+- Keyboard input is also not yet implemented because the current methods as proposed in PLBerkelium are not sufficient.
+
+
+
+>> 28.06.2012
+[IJH]
+- Initial creation of PLAwesomium
+- Because Awesomium 1.7 RC1 has been released (http://support.awesomium.com/discussions/announcements/159-awesomium-17-rc1-just-released)
+  proper C++ support for VS2010 trough their API finally makes it a viable choice to implement Awesomium into a PixelLight plugin as-well.
+  Updates in Awesomium are differently handled then they are in Berkelium therefor the structure of the plugin has to be altered,
+  this is why its a wise choice to have 2 separate plugins for these libraries.
