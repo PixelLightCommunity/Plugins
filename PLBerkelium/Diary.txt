@@ -1,3 +1,11 @@
+>> 01.07.2012
+[CO]
+- Added Visual Studio 2011 project files to make it possible to build and debug the project at least a little bit easier
+  -> Additional CMake files would be a good idea, have a look at e.g. the dungeon demo to get the idea how this works
+- Removed Berkelium includes, better to have the external dependencies completely separated from the own project to avoid version and platform conflicts
+
+
+
 >> 29.06.2012
 [IJH]
 - Added a method for the user to check if a page has loaded.
