@@ -834,10 +834,10 @@ void Gui::KeyboardEvents(Control &cControl)
 				//DebugToConsole("Window: '" + m_pFocusedWindow->GetName() + "', GetCharacter(): '" + String(cButton.GetCharacter()) + "'\n");
 				//DebugToConsole("Window: '" + m_pFocusedWindow->GetName() + "', IsPressed(): '" + String(cButton.IsPressed()) + "'\n");
 
-				DebugToConsole("Amount of text: " + String(m_pTextButtonHandler->GetNumOfElements()) + "\n");
+				/*DebugToConsole("Amount of text: " + String(m_pTextButtonHandler->GetNumOfElements()) + "\n");
 				DebugToConsole("Hit count: " + String(m_nTextKeyHitCount) + "\n\n");
 				DebugToConsole("Amount of keys: " + String(m_pKeyButtonHandler->GetNumOfElements()) + "\n");
-				DebugToConsole("Hit count: " + String(m_nKeyHitCount) + "\n\n\n");
+				DebugToConsole("Hit count: " + String(m_nKeyHitCount) + "\n\n\n");*/
 			}
 		}
 	}
