@@ -17,10 +17,10 @@
     <ClCompile Include="src\SRPMousePointer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SRPWindows.cpp">
+    <ClCompile Include="src\Gui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Gui.cpp">
+    <ClCompile Include="src\SRPWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -34,10 +34,10 @@
     <ClInclude Include="include\PLBerkelium\SRPMousePointer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\PLBerkelium\SRPWindows.h">
+    <ClInclude Include="include\PLBerkelium\ARGBtoRGBA_GLSL.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\PLBerkelium\ARGBtoRGBA_GLSL.h">
+    <ClInclude Include="include\PLBerkelium\SRPWindow.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

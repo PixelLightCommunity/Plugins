@@ -33,7 +33,7 @@
 #include "berkelium/Window.hpp"
 
 #include "PLBerkelium.h"
-#include "SRPWindows.h"
+#include "SRPWindow.h"
 #include "SRPMousePointer.h"
 
 
@@ -72,8 +72,8 @@ class Gui : public PLCore::Object {
 	//[-------------------------------------------------------]
 	pl_class(PLBERKELIUM_RTTI_EXPORT, Gui, "PLBerkelium", PLCore::Object, "")
 		pl_constructor_0(DefaultConstructor, "Default constructor", "")
-		pl_slot_0(OnUpdate, "", "")
-		pl_slot_1(OnControl, PLInput::Control&, "", "")
+		pl_slot_0(OnUpdate, "Called on event update by scene context", "")
+		pl_slot_1(OnControl, PLInput::Control&, "Called when a control event has occurred, occurred control as first parameter", "")
 	pl_class_end
 
 
@@ -83,30 +83,31 @@ class Gui : public PLCore::Object {
 
 		PLBERKELIUM_API bool IsBerkeliumInitialized() const;
 		PLBERKELIUM_API bool AddWindow(const PLCore::String &sName,
-			const bool &pVisible = true,
+			const bool &pVisible = false,
 			const PLCore::String &sUrl = "about:blank",
-			const int &nWidth = 128,
-			const int &nHeight = 128,
+			const int &nWidth = 32,
+			const int &nHeight = 32,
 			const int &nX = 0,
 			const int &nY = 0,
 			const bool &bTransparent = true,
 			const bool &bEnabled = true);
-		PLBERKELIUM_API SRPWindows *GetWindow(const PLCore::String &sName) const;
-		PLBERKELIUM_API Berkelium::Window *GetBerkeliumWindow(const PLCore::String &sName) const;
-		PLBERKELIUM_API PLCore::HashMap<PLCore::String, SRPWindows*> *GetWindowsMap() const;
+		PLBERKELIUM_API SRPWindow *GetWindow(const PLCore::String &sName);
+		PLBERKELIUM_API Berkelium::Window *GetBerkeliumWindow(const PLCore::String &sName);
+		PLBERKELIUM_API PLCore::HashMap<PLCore::String, SRPWindow*> *GetWindowsMap() const;
 		PLBERKELIUM_API void UpdateBerkelium();
 		PLBERKELIUM_API void DestroyInstance() const;
 		PLBERKELIUM_API void SetRenderers(PLRenderer::Renderer *pRenderer, PLScene::SceneRenderer *pSceneRenderer);
-		PLBERKELIUM_API sWindowsData *GetWindowData(const PLCore::String &sName) const;
+		PLBERKELIUM_API sWindowsData *GetWindowData(const PLCore::String &sName);
 		PLBERKELIUM_API bool RemoveWindow(const PLCore::String &sName);
 		PLBERKELIUM_API SRPMousePointer *GetMousePointer() const;
-		PLBERKELIUM_API void FocusWindow(SRPWindows *pSRPWindows);
-		PLBERKELIUM_API SRPWindows *GetFocusedWindow() const;
+		PLBERKELIUM_API void FocusWindow(SRPWindow *pSRPWindow);
+		PLBERKELIUM_API SRPWindow *GetFocusedWindow() const;
 		PLBERKELIUM_API bool ConnectController(PLInput::Controller *pController);
 		PLBERKELIUM_API bool ConnectEventUpdate(PLScene::SceneContext *pSceneContext);
 		PLBERKELIUM_API bool SetMousePointerVisible(const bool &bVisible) const;
 		PLBERKELIUM_API void UnFocusAllWindows();
 		PLBERKELIUM_API bool SetWindowVisible(const PLCore::String &sName, const bool &bVisible = true);
+		PLBERKELIUM_API void DebugNamesOfWindows();
 
 	protected:
 
@@ -117,16 +118,16 @@ class Gui : public PLCore::Object {
 		void Initialize();
 		void StopBerkelium() const;
 		void AddDummyWindow();
-		PLCore::List<SRPWindows*> *GetMouseEnabledWindows();
-		PLCore::List<SRPWindows*> *GetMouseOverWindows(const PLCore::List<SRPWindows*> *pEnabledWindows, const PLMath::Vector2i &vMousePos);
+		PLCore::List<SRPWindow*> *GetMouseEnabledWindows();
+		PLCore::List<SRPWindow*> *GetMouseOverWindows(const PLCore::List<SRPWindow*> *pEnabledWindows, const PLMath::Vector2i &vMousePos);
 		void CreateMousePointer();
-		void RemoveMousePointer() const;
+		void DestroyMousePointer() const;
 		void OnUpdate();
 		void MouseEvents(PLInput::Control &cControl);
-		SRPWindows *GetTopMostWindow(PLCore::List<SRPWindows*> *pWindows);
-		void MouseMove(const SRPWindows *pSRPWindow, const PLMath::Vector2i &vMousePos) const;
-		void MouseClicks(SRPWindows *pSRPWindow, PLInput::Control &cControl);
-		void MouseScrolls(SRPWindows *pSRPWindow, PLInput::Control &cControl);
+		SRPWindow *GetTopMostWindow(PLCore::List<SRPWindow*> *pWindows);
+		void MouseMove(const SRPWindow *pSRPWindow, const PLMath::Vector2i &vMousePos) const;
+		void MouseClicks(SRPWindow *pSRPWindow, PLInput::Control &cControl);
+		void MouseScrolls(SRPWindow *pSRPWindow, PLInput::Control &cControl);
 		void OnControl(PLInput::Control &cControl);
 		void DefaultCallBackHandler();
 		void KeyboardEvents(PLInput::Control &cControl);
@@ -137,21 +138,21 @@ class Gui : public PLCore::Object {
 
 		bool m_bBerkeliumInitialized;
 		bool m_bRenderersInitialized;
-		PLCore::HashMap<PLCore::String, SRPWindows*> *m_pWindows;
+		PLCore::HashMap<PLCore::String, SRPWindow*> *m_pWindows;
 		PLScene::SceneRenderer *m_pCurrentSceneRenderer;
 		PLRenderer::Renderer *m_pCurrentRenderer;
 		SRPMousePointer *m_pSRPMousePointer;
-		SRPWindows *m_pFocusedWindow;
+		SRPWindow *m_pFocusedWindow;
 		bool m_bControlsEnabled;
 		bool m_bIsUpdateConnected;
 		bool m_bIsControllerConnected;
 		PLCore::String m_sLastControl;
 		PLCore::uint64 m_nLastMouseLeftReleaseTime;
-		SRPWindows *m_pLastMouseWindow;
+		SRPWindow *m_pLastMouseWindow;
 		bool m_bMouseLeftDown;
 		PLMath::Vector2i m_vLastKnownMousePos;
-		SRPWindows *m_pDragWindow;
-		SRPWindows *m_pResizeWindow;
+		SRPWindow *m_pDragWindow;
+		SRPWindow *m_pResizeWindow;
 		bool m_bMouseMoved;
 		PLMath::Vector2i m_vLockMousePos;
 		PLCore::HashMap<PLCore::String, sButton*> *m_pTextButtonHandler;

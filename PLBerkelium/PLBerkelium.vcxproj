@@ -299,14 +299,14 @@ $(PL_ROOT)\Bin\Tools\x64\PLProject.exe . --output-path ..\Bin\Runtime\x64 --writ
     <ClCompile Include="src\Gui.cpp" />
     <ClCompile Include="src\PLBerkelium.cpp" />
     <ClCompile Include="src\SRPMousePointer.cpp" />
-    <ClCompile Include="src\SRPWindows.cpp" />
+    <ClCompile Include="src\SRPWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\PLBerkelium\ARGBtoRGBA_GLSL.h" />
     <ClInclude Include="include\PLBerkelium\Gui.h" />
     <ClInclude Include="include\PLBerkelium\PLBerkelium.h" />
     <ClInclude Include="include\PLBerkelium\SRPMousePointer.h" />
-    <ClInclude Include="include\PLBerkelium\SRPWindows.h" />
+    <ClInclude Include="include\PLBerkelium\SRPWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

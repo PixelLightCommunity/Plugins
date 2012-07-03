@@ -1,7 +1,7 @@
 //[-------------------------------------------------------]
 //[ Header                                                ]
 //[-------------------------------------------------------]
-#include "PLAwesomium/SRPWindows.h"
+#include "PLAwesomium/SRPWindow.h"
 
 
 //[-------------------------------------------------------]
@@ -424,6 +424,9 @@ void SRPWindows::CreateAwesomiumWindow()
 
 		// setting listener for load callbacks
 		m_pWindow->set_load_listener(this);
+
+		// setting handler for javascript callbacks
+		m_pWindow->set_js_method_handler(this);
 	}
 }
 
@@ -651,9 +654,31 @@ bool SRPWindows::RemoveCallBack(const String &sKey) const
 void SRPWindows::SetDefaultCallBackFunctions()
 {
 	// bind the default javascript functions for use
-	//GetAwesomiumWindow()->addBindOnStartLoading(Berkelium::WideString::point_to(String(DRAGWINDOW).GetUnicode()), Berkelium::Script::Variant::bindFunction(Berkelium::WideString::point_to(String(DRAGWINDOW).GetUnicode()), false));
-	//GetAwesomiumWindow()->addBindOnStartLoading(Berkelium::WideString::point_to(String(HIDEWINDOW).GetUnicode()), Berkelium::Script::Variant::bindFunction(Berkelium::WideString::point_to(String(HIDEWINDOW).GetUnicode()), false));
-	//GetAwesomiumWindow()->addBindOnStartLoading(Berkelium::WideString::point_to(String(CLOSEWINDOW).GetUnicode()), Berkelium::Script::Variant::bindFunction(Berkelium::WideString::point_to(String(CLOSEWINDOW).GetUnicode()), false));
+	/*Awesomium::JSValue cJSDragWindow = GetAwesomiumWindow()->CreateGlobalJavascriptObject(Awesomium::WebString::CreateFromUTF8(String(DRAGWINDOW).GetUTF8(), String(DRAGWINDOW).GetLength()));
+	GetAwesomiumWindow()->CreateGlobalJavascriptObject(Awesomium::WebString::CreateFromUTF8(String(HIDEWINDOW).GetUTF8(), String(HIDEWINDOW).GetLength()));
+	GetAwesomiumWindow()->CreateGlobalJavascriptObject(Awesomium::WebString::CreateFromUTF8(String(CLOSEWINDOW).GetUTF8(), String(CLOSEWINDOW).GetLength()));
+
+	Awesomium::JSObject cJSObject = cJSDragWindow.ToObject();
+
+	cJSObject.SetCustomMethod(Awesomium::WebString::CreateFromUTF8(String(DRAGWINDOW).GetUTF8(), String(DRAGWINDOW).GetLength()), false);
+
+	DebugToConsole("last error: '" + String(GetAwesomiumWindow()->last_error()) + "'\n");*/
+
+
+
+	Awesomium::JSValue cJSTest = GetAwesomiumWindow()->CreateGlobalJavascriptObject(Awesomium::WebString::CreateFromUTF8("external", 5));
+
+	if (cJSTest.IsObject())
+	{
+		Awesomium::JSObject cJSObject = cJSTest.ToObject();
+
+		cJSObject.SetCustomMethod(Awesomium::WebString::CreateFromUTF8("hello", 5), false);
+
+		if (cJSObject.HasMethod(Awesomium::WebString::CreateFromUTF8("hello", 5)))
+		{
+			DebugToConsole("last error: '" + String(GetAwesomiumWindow()->last_error()) + "'\n");
+		}
+	}
 }
 
 
@@ -773,6 +798,25 @@ void SRPWindows::OnDocumentReady(Awesomium::WebView *caller, const Awesomium::We
 bool SRPWindows::IsLoaded() const
 {
 	return m_psWindowsData->bLoaded;
+}
+
+
+void SRPWindows::OnMethodCall(Awesomium::WebView *caller, unsigned int remote_object_id, const Awesomium::WebString &method_name, const Awesomium::JSArray &args)
+{
+	/*javascript callback handled, implement working example from PLBerkelium*/
+
+	DebugToConsole("Javascript callback triggered!\n");
+	DebugToConsole("name: " + String(const_cast<wchar16*>(method_name.data())) + "\n");
+}
+
+
+Awesomium::JSValue SRPWindows::OnMethodCallWithReturnValue(Awesomium::WebView *caller, unsigned int remote_object_id, const Awesomium::WebString &method_name, const Awesomium::JSArray &args)
+{
+	/*javascript callback handled with return value, implement working example from PLBerkelium*/
+
+	DebugToConsole("Javascript callback with return triggered!\n");
+
+	return Awesomium::JSValue(0);
 }
 
 

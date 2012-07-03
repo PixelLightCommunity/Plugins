@@ -14,21 +14,18 @@
     <ClCompile Include="src\SRPMousePointer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SRPWindows.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Gui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\PLAwesomium.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SRPWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\PLAwesomium\SRPMousePointer.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\PLAwesomium\SRPWindows.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="include\PLAwesomium\ARGBtoRGBA_GLSL.h">
@@ -38,6 +35,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="include\PLAwesomium\PLAwesomium.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PLAwesomium\SRPWindow.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

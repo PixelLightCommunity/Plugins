@@ -36,7 +36,7 @@
 #include "Awesomium/BitmapSurface.h"
 
 #include "PLAwesomium.h"
-#include "SRPWindows.h"
+#include "SRPWindow.h"
 #include "SRPMousePointer.h"
 
 

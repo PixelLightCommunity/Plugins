@@ -29,7 +29,7 @@ pl_implement_class(Gui)
 Gui::Gui() :
 	m_bBerkeliumInitialized(false),
 	m_bRenderersInitialized(false),
-	m_pWindows(new HashMap<String, SRPWindows*>),
+	m_pWindows(new HashMap<String, SRPWindow*>),
 	m_pCurrentSceneRenderer(nullptr),
 	m_pCurrentRenderer(nullptr),
 	m_pSRPMousePointer(nullptr),
@@ -55,6 +55,7 @@ Gui::Gui() :
 	m_nTextKeyHitCount(0),
 	m_nKeyHitCount(0)
 {
+	// initialize everything need to run berkelium
 	Initialize();
 }
 
@@ -63,8 +64,8 @@ Gui::~Gui()
 {
 	// we should destroy all windows
 	DestroyWindows();
-	// we should remove the mouse pointer
-	RemoveMousePointer();
+	// we should destroy the mouse pointer
+	DestroyMousePointer();
 	// we should stop berkelium from doing anything else
 	StopBerkelium();
 }
@@ -72,6 +73,7 @@ Gui::~Gui()
 
 void Gui::DebugToConsole(const String &sString)
 {
+	/*this should be deprecated when not needed anymore*/
 	System::GetInstance()->GetConsole().Print("PLBerkelium::Gui - " + sString);
 }
 
@@ -92,37 +94,37 @@ bool Gui::AddWindow(const String &sName, const bool &pVisible, const String &sUr
 		}
 
 		// we create the window
-		SRPWindows *pSRPWindows = new SRPWindows(sName);
+		SRPWindow *pSRPWindow = new SRPWindow(sName);
 
 		// we assign data to it
-		pSRPWindows->GetData()->bIsVisable = pVisible;
-		pSRPWindows->GetData()->sUrl = sUrl;
-		pSRPWindows->GetData()->nFrameWidth = nWidth;
-		pSRPWindows->GetData()->nFrameHeight = nHeight;
-		pSRPWindows->GetData()->nXPos = nX;
-		pSRPWindows->GetData()->nYPos = nY;
-		pSRPWindows->GetData()->bTransparent = bTransparent;
-		pSRPWindows->GetData()->bKeyboardEnabled = bEnabled;
-		pSRPWindows->GetData()->bMouseEnabled = bEnabled; // implement further
-		pSRPWindows->GetData()->bNeedsFullUpdate = true;
-		pSRPWindows->GetData()->bLoaded = false;
+		pSRPWindow->GetData()->bIsVisable = pVisible;
+		pSRPWindow->GetData()->sUrl = sUrl;
+		pSRPWindow->GetData()->nFrameWidth = nWidth;
+		pSRPWindow->GetData()->nFrameHeight = nHeight;
+		pSRPWindow->GetData()->nXPos = nX;
+		pSRPWindow->GetData()->nYPos = nY;
+		pSRPWindow->GetData()->bTransparent = bTransparent;
+		pSRPWindow->GetData()->bKeyboardEnabled = bEnabled;
+		/*implement the option to disallow mouse events but still keep keyboard events going*/
+		pSRPWindow->GetData()->bMouseEnabled = bEnabled;
+		pSRPWindow->GetData()->bNeedsFullUpdate = true;
+		pSRPWindow->GetData()->bLoaded = false;
 
 		// we initialize the window
-		if (pSRPWindows->Initialize(m_pCurrentRenderer, Vector2(float(nX), float(nY)), Vector2(float(nWidth), float(nHeight))))
+		if (pSRPWindow->Initialize(m_pCurrentRenderer, Vector2(float(nX), float(nY)), Vector2(float(nWidth), float(nHeight))))
 		{
 			// we add the window scene render pass to the renderer
-			pSRPWindows->AddSceneRenderPass(m_pCurrentSceneRenderer);
+			pSRPWindow->AddSceneRenderPass(m_pCurrentSceneRenderer);
 		}
 		else
 		{
 			// window cannot be initialized so we should destroy and cleanup the leftovers
-			pSRPWindows->DestroyWindow();
-			pSRPWindows->DestroyInstance();
+			pSRPWindow->DestroyInstance();
 			return false;
 		}
 
 		// we add the created window to the hashmap
-		m_pWindows->Add(sName, pSRPWindows);
+		m_pWindows->Add(sName, pSRPWindow);
 
 		// we return successfully
 		return true;
@@ -140,17 +142,15 @@ void Gui::DestroyWindows()
 	if (m_bBerkeliumInitialized)
 	{
 		// get the iterator for all the windows created
-		Iterator<SRPWindows*> cIterator = m_pWindows->GetIterator();
+		Iterator<SRPWindow*> cIterator = m_pWindows->GetIterator();
 		// loop trough the windows
 		while (cIterator.HasNext())
 		{
-			SRPWindows *pSRPWindows = cIterator.Next();
+			SRPWindow *pSRPWindow = cIterator.Next();
 			// remove the scene render pass from the renderer
-			pSRPWindows->RemoveSceneRenderPass();
-			// destroy the window
-			pSRPWindows->DestroyWindow();
+			pSRPWindow->RemoveSceneRenderPass();
 			// cleanup the instance
-			pSRPWindows->DestroyInstance();
+			pSRPWindow->DestroyInstance();
 		}
 		// clear the hashmap
 		m_pWindows->Clear();
@@ -178,16 +178,19 @@ void Gui::StopBerkelium() const
 {
 	if (m_bBerkeliumInitialized)
 	{
-		// stop berkelium
+		// stop berkelium from running
 		Berkelium::stopRunning();
 	}
 }
 
 
-Berkelium::Window *Gui::GetBerkeliumWindow(const String &sName) const
+Berkelium::Window *Gui::GetBerkeliumWindow(const PLCore::String &sName)
 {
 	if (m_pWindows->Get(sName) == NULL)
 	{
+		/*test debug to make sure the dummy window is returned if the window is not found*/
+		DebugToConsole("Could not find window, returning dummy instead\n");
+
 		// we should return the berkelium window from the dummy window to prevent crashes on called functions
 		// the end user should always verify that the returned object is the right one
 		return m_pWindows->Get(BERKELIUMDUMMYWINDOW)->GetBerkeliumWindow();
@@ -209,7 +212,7 @@ void Gui::UpdateBerkelium()
 
 void Gui::DestroyInstance() const
 {
-	// cleanup
+	// cleanup this instance
 	delete this;
 }
 
@@ -226,6 +229,8 @@ void Gui::SetRenderers(Renderer *pRenderer, SceneRenderer *pSceneRenderer)
 				m_pCurrentRenderer = pRenderer;
 				m_pCurrentSceneRenderer = pSceneRenderer;
 				m_bRenderersInitialized = true;
+
+				/*perhaps the following can be moved somewhere else*/
 				// create the mouse pointer
 				CreateMousePointer();
 			}
@@ -234,10 +239,13 @@ void Gui::SetRenderers(Renderer *pRenderer, SceneRenderer *pSceneRenderer)
 }
 
 
-sWindowsData *Gui::GetWindowData(const String &sName) const
+sWindowsData *Gui::GetWindowData(const PLCore::String &sName)
 {
 	if (m_pWindows->Get(sName) == NULL)
 	{
+		/*test debug to make sure the dummy window is returned if the window is not found*/
+		DebugToConsole("Could not find window, returning dummy instead\n");
+
 		// we should return the data from the dummy window to prevent crashes on called functions
 		// the end user should always verify that the returned data is the right one
 		return m_pWindows->Get(BERKELIUMDUMMYWINDOW)->GetData();
@@ -246,6 +254,7 @@ sWindowsData *Gui::GetWindowData(const String &sName) const
 	{
 		// return the data
 		return m_pWindows->Get(sName)->GetData();
+
 	}
 }
 
@@ -253,22 +262,22 @@ sWindowsData *Gui::GetWindowData(const String &sName) const
 void Gui::AddDummyWindow()
 {
 	// we create the window
-	SRPWindows *pSRPWindows = new SRPWindows(BERKELIUMDUMMYWINDOW);
+	SRPWindow *pSRPWindow = new SRPWindow(BERKELIUMDUMMYWINDOW);
 
 	// we assign data to it
-	pSRPWindows->GetData()->bIsVisable = false;
-	pSRPWindows->GetData()->nFrameWidth = -1;
-	pSRPWindows->GetData()->nFrameHeight = -1;
-	pSRPWindows->GetData()->nXPos = -1;
-	pSRPWindows->GetData()->nYPos = -1;
-	pSRPWindows->GetData()->bKeyboardEnabled = false;
-	pSRPWindows->GetData()->bMouseEnabled = false;
+	pSRPWindow->GetData()->bIsVisable = false;
+	pSRPWindow->GetData()->nFrameWidth = -1;
+	pSRPWindow->GetData()->nFrameHeight = -1;
+	pSRPWindow->GetData()->nXPos = -1;
+	pSRPWindow->GetData()->nYPos = -1;
+	pSRPWindow->GetData()->bKeyboardEnabled = false;
+	pSRPWindow->GetData()->bMouseEnabled = false;
 
 	// we create a berkelium window
-	pSRPWindows->CreateBerkeliumWindow();
+	pSRPWindow->CreateBerkeliumWindow();
 
 	// we add the created dummy window to the hashmap
-	m_pWindows->Add(BERKELIUMDUMMYWINDOW, pSRPWindows);
+	m_pWindows->Add(BERKELIUMDUMMYWINDOW, pSRPWindow);
 }
 
 
@@ -287,13 +296,31 @@ bool Gui::RemoveWindow(const String &sName)
 	else
 	{
 		// get the window
-		SRPWindows *pSRPWindows = m_pWindows->Get(sName);
+		SRPWindow *pSRPWindow = m_pWindows->Get(sName);
+
+		// unfocus window if its focused
+		if (pSRPWindow == m_pFocusedWindow)
+		{
+			UnFocusAllWindows();
+		}
+		// reset last mouse window if its the window we are trying to remove
+		if (pSRPWindow == m_pLastMouseWindow)
+		{
+			m_pLastMouseWindow = nullptr;
+		}
+		
 		// remove the scene render pass from the renderer
-		pSRPWindows->RemoveSceneRenderPass();
-		// destroy the window
-		pSRPWindows->DestroyWindow();
+		pSRPWindow->RemoveSceneRenderPass();
 		// cleanup the instance
-		pSRPWindows->DestroyInstance();
+		pSRPWindow->DestroyInstance();
+
+		// make nullptr
+		/*!QUESTION!*/
+		pSRPWindow = nullptr;
+		/*
+		is that needed at all?
+		the used function pSRPWindow->DestroyInstance() does delete the window instance so de we really have to make it a nullptr afterwards?
+		*/
 
 		// remove the window from the hashmap, should always be true
 		return m_pWindows->Remove(sName);
@@ -303,23 +330,28 @@ bool Gui::RemoveWindow(const String &sName)
 
 void Gui::CreateMousePointer()
 {
+	// we create a mouse pointer
 	m_pSRPMousePointer = new SRPMousePointer(m_pCurrentRenderer, m_pCurrentSceneRenderer);
 }
 
 
-void Gui::RemoveMousePointer() const
+void Gui::DestroyMousePointer() const
 {
 	if (m_bRenderersInitialized && m_pSRPMousePointer)
 	{
+		// we destroy the instance of the mouse pointer to allow for a proper cleanup
 		m_pSRPMousePointer->DestroyInstance();
 	}
 }
 
 
-SRPWindows *Gui::GetWindow(const String &sName) const
+SRPWindow *Gui::GetWindow(const PLCore::String &sName)
 {
 	if (m_pWindows->Get(sName) == NULL)
 	{
+		/*test debug to make sure the dummy window is returned if the window is not found*/
+		DebugToConsole("Could not find window, returning dummy instead\n");
+
 		// we should return the dummy window to prevent crashes on called functions
 		// the end user should always verify that the returned window is the right one
 		return m_pWindows->Get(BERKELIUMDUMMYWINDOW);
@@ -338,7 +370,7 @@ SRPMousePointer *Gui::GetMousePointer() const
 }
 
 
-HashMap<String, SRPWindows*> *Gui::GetWindowsMap() const
+HashMap<String, SRPWindow*> *Gui::GetWindowsMap() const
 {
 	return m_pWindows;
 }
@@ -350,7 +382,7 @@ bool Gui::IsBerkeliumInitialized() const
 }
 
 
-void Gui::MouseMove(const SRPWindows *pSRPWindow, const Vector2i &vMousePos) const
+void Gui::MouseMove(const SRPWindow *pSRPWindow, const Vector2i &vMousePos) const
 {
 	// move the mouse for berkelium
 	pSRPWindow->GetBerkeliumWindow()->mouseMoved(pSRPWindow->GetRelativeMousePosition(vMousePos).x, pSRPWindow->GetRelativeMousePosition(vMousePos).y);
@@ -362,7 +394,7 @@ void Gui::UnFocusAllWindows()
 	// focused window needs to be a nullptr
 	m_pFocusedWindow = nullptr;
 	// get the iterator for all the windows
-	Iterator<SRPWindows*> cIterator = m_pWindows->GetIterator();
+	Iterator<SRPWindow*> cIterator = m_pWindows->GetIterator();
 	// loop trough the windows
 	while (cIterator.HasNext())
 	{
@@ -372,21 +404,21 @@ void Gui::UnFocusAllWindows()
 }
 
 
-List<SRPWindows*> *Gui::GetMouseEnabledWindows()
+List<SRPWindow*> *Gui::GetMouseEnabledWindows()
 {
 	// create an empty list
-	List<SRPWindows*> *pList = new List<SRPWindows*>;
+	List<SRPWindow*> *pList = new List<SRPWindow*>;
 
 	// get the iterator for all the windows
-	Iterator<SRPWindows*> cIterator = m_pWindows->GetIterator();
+	Iterator<SRPWindow*> cIterator = m_pWindows->GetIterator();
 	// loop trough the windows
 	while (cIterator.HasNext())
 	{
-		SRPWindows *pSRPWindows = cIterator.Next();
-		if (pSRPWindows->GetData()->bIsVisable && pSRPWindows->GetData()->bMouseEnabled)
+		SRPWindow *pSRPWindow = cIterator.Next();
+		if (pSRPWindow->GetData()->bIsVisable && pSRPWindow->GetData()->bMouseEnabled)
 		{
 			// if the window is visible and the mouse for the window is enabled then add the window to the list
-			pList->Add(pSRPWindows);
+			pList->Add(pSRPWindow);
 		}
 	}
 
@@ -403,10 +435,10 @@ List<SRPWindows*> *Gui::GetMouseEnabledWindows()
 }
 
 
-void Gui::FocusWindow(SRPWindows *pSRPWindows)
+void Gui::FocusWindow(SRPWindow *pSRPWindow)
 {
 	// check if the window is already focused
-	if (m_pFocusedWindow != pSRPWindows)
+	if (m_pFocusedWindow != pSRPWindow)
 	{
 		if (m_pFocusedWindow != nullptr)
 		{
@@ -414,16 +446,16 @@ void Gui::FocusWindow(SRPWindows *pSRPWindows)
 			UnFocusAllWindows();
 		}
 		// focus the window
-		pSRPWindows->GetBerkeliumWindow()->focus();
+		pSRPWindow->GetBerkeliumWindow()->focus();
 		// set the window to front
-		pSRPWindows->MoveToFront();
+		pSRPWindow->MoveToFront();
 		// set the new focused window
-		m_pFocusedWindow = pSRPWindows;
+		m_pFocusedWindow = pSRPWindow;
 	}
 }
 
 
-List<SRPWindows*> *Gui::GetMouseOverWindows(const List<SRPWindows*> *pEnabledWindows, const Vector2i &vMousePos)
+List<SRPWindow*> *Gui::GetMouseOverWindows(const List<SRPWindow*> *pEnabledWindows, const Vector2i &vMousePos)
 {
 	if (!pEnabledWindows)
 	{
@@ -432,42 +464,42 @@ List<SRPWindows*> *Gui::GetMouseOverWindows(const List<SRPWindows*> *pEnabledWin
 	}
 
 	// create an empty list
-	List<SRPWindows*> *pList = new List<SRPWindows*>;
+	List<SRPWindow*> *pList = new List<SRPWindow*>;
 
 	// get the iterator for the enabled windows
-	Iterator<SRPWindows*> cIterator = pEnabledWindows->GetIterator();
+	Iterator<SRPWindow*> cIterator = pEnabledWindows->GetIterator();
 	// loop trough the enabled windows
 	while (cIterator.HasNext())
 	{
-		SRPWindows *pSRPWindows = cIterator.Next();
+		SRPWindow *pSRPWindow = cIterator.Next();
 
 		// get the relative mouse position for the window
-		Vector2i vRelativeMousePos = pSRPWindows->GetRelativeMousePosition(vMousePos);
+		Vector2i vRelativeMousePos = pSRPWindow->GetRelativeMousePosition(vMousePos);
 
-		if (vRelativeMousePos.x > 0 && vRelativeMousePos.y > 0 && vRelativeMousePos.x < pSRPWindows->GetSize().x && vRelativeMousePos.y < pSRPWindows->GetSize().y)
+		if (vRelativeMousePos.x > 0 && vRelativeMousePos.y > 0 && vRelativeMousePos.x < pSRPWindow->GetSize().x && vRelativeMousePos.y < pSRPWindow->GetSize().y)
 		{
 			// the mouse is currently over the window, so we add the window to the list
-			pList->Add(pSRPWindows);
+			pList->Add(pSRPWindow);
 		}
 		else
 		{
 			// check if any widgets are drawn for the window
-			if (pSRPWindows->GetWidgets()->GetNumOfElements() > 0)
+			if (pSRPWindow->GetWidgets()->GetNumOfElements() > 0)
 			{
 				// get the iterator for the widgets
-				Iterator<sWidget*> cWidgetIterator = pSRPWindows->GetWidgets()->GetIterator();
+				Iterator<sWidget*> cWidgetIterator = pSRPWindow->GetWidgets()->GetIterator();
 				// loop trough the widgets
 				while (cWidgetIterator.HasNext())
 				{
 					sWidget *psWidget = cWidgetIterator.Next();
 
 					// get the relative mouse position for the widget
-					Vector2i vRelativeMousePosWidget = pSRPWindows->GetRelativeMousePositionWidget(psWidget, vMousePos);
+					Vector2i vRelativeMousePosWidget = pSRPWindow->GetRelativeMousePositionWidget(psWidget, vMousePos);
 
 					if (vRelativeMousePosWidget.x > 0 && vRelativeMousePosWidget.y > 0 && vRelativeMousePosWidget.x < psWidget->nWidth && vRelativeMousePosWidget.y < psWidget->nHeight)
 					{
 						// the mouse is currently over the widget, so we add the window to the list
-						pList->Add(pSRPWindows);
+						pList->Add(pSRPWindow);
 					}
 				}
 			}
@@ -487,7 +519,7 @@ List<SRPWindows*> *Gui::GetMouseOverWindows(const List<SRPWindows*> *pEnabledWin
 }
 
 
-SRPWindows *Gui::GetFocusedWindow() const
+SRPWindow *Gui::GetFocusedWindow() const
 {
 	return m_pFocusedWindow;
 }
@@ -526,10 +558,7 @@ bool Gui::ConnectEventUpdate(SceneContext *pSceneContext)
 		m_bIsUpdateConnected = true;
 		return true;
 	}
-	else
-	{
-		return false;
-	}
+	return false;
 }
 
 
@@ -546,7 +575,7 @@ void Gui::MouseEvents(Control &cControl)
 		m_vLastKnownMousePos = vMousePos;
 		
 		// check if mouse pointer is visible
-		if (GetMousePointer()->IsVisible())
+		if (GetMousePointer()->IsVisible() && GetMousePointer()->IsInitialized())
 		{
 			// hide the native mouse pointer
 			// this should be a setting so that the user can decide if they want to hide the native mouse pointer
@@ -566,7 +595,7 @@ void Gui::MouseEvents(Control &cControl)
 
 		// get the window that the mouse is over
 		// if there are more window under the mouse then it will return the top most
-		SRPWindows *pSRPWindow = GetTopMostWindow(GetMouseOverWindows(GetMouseEnabledWindows(), vMousePos));
+		SRPWindow *pSRPWindow = GetTopMostWindow(GetMouseOverWindows(GetMouseEnabledWindows(), vMousePos));
 		if (pSRPWindow)
 		{
 			// move the mouse on the window
@@ -583,6 +612,7 @@ void Gui::MouseEvents(Control &cControl)
 			if (m_pLastMouseWindow)
 			{
 				// the mouse has left the window so the tooltip should be empty
+				/*deprecate*/
 				m_pLastMouseWindow->SetToolTip("");
 			}
 
@@ -594,6 +624,9 @@ void Gui::MouseEvents(Control &cControl)
 				if (cControl.GetName() == "MouseLeft")
 				{
 					// we clicked outside a window so we need to unfocus it
+					/*
+					this should only happen on mouse down, also allow for more mouse buttons to unfocus a window (right, middle, etc)
+					*/
 					UnFocusAllWindows();
 				}
 			}
@@ -606,17 +639,18 @@ void Gui::MouseEvents(Control &cControl)
 		}
 
 		// the mouse supposedly has moved so we wanna know about it
+		/*perhaps a better check for this*/
 		m_bMouseMoved = true;
 	}
 }
 
 
-void Gui::MouseClicks(SRPWindows *pSRPWindow, Control &cControl)
+void Gui::MouseClicks(SRPWindow *pSRPWindow, Control &cControl)
 {
 	if (cControl.GetName() == "MouseLeft")
 	{
 		// mouse clicked on a window so we need to focus it
-		/*have this happen on mouse down*/
+		/*have this happen on mouse down only*/
 		FocusWindow(pSRPWindow);
 
 		if ((Timing::GetInstance()->GetPastTime() - m_nLastMouseLeftReleaseTime) > 0 && (Timing::GetInstance()->GetPastTime() - m_nLastMouseLeftReleaseTime) < 250)
@@ -655,7 +689,7 @@ void Gui::MouseClicks(SRPWindows *pSRPWindow, Control &cControl)
 }
 
 
-void Gui::MouseScrolls(SRPWindows *pSRPWindow, Control &cControl)
+void Gui::MouseScrolls(SRPWindow *pSRPWindow, Control &cControl)
 {
 	if (pSRPWindow)
 	{
@@ -676,15 +710,19 @@ void Gui::MouseScrolls(SRPWindows *pSRPWindow, Control &cControl)
 
 void Gui::OnControl(Control &cControl)
 {
-	/*we wanna know about any mouse stuff*/
-	MouseEvents(cControl);
+	{
+		/*filter out anything but mouse events*/
+		MouseEvents(cControl);
+	}
 
-	/*keyboard stuff*/
-	KeyboardEvents(cControl);
+	{
+		/*filter out anything but keyboard events*/
+		KeyboardEvents(cControl);
+	}
 }
 
 
-SRPWindows *Gui::GetTopMostWindow(List<SRPWindows*> *pWindows)
+SRPWindow *Gui::GetTopMostWindow(List<SRPWindow*> *pWindows)
 {
 	if (pWindows)
 	{
@@ -695,26 +733,26 @@ SRPWindows *Gui::GetTopMostWindow(List<SRPWindows*> *pWindows)
 		}
 		else
 		{
-			// clear the current topmost window
-			SRPWindows *pTopMostWindow = nullptr;
+			// prepare for the current topmost window
+			SRPWindow *pTopMostWindow = nullptr;
 
 			int nHigherIndex = -1;
 
 			// get the iterator for the windows in the list
-			Iterator<SRPWindows*> cIterator = pWindows->GetIterator();
+			Iterator<SRPWindow*> cIterator = pWindows->GetIterator();
 			// loop trough the windows
 			while (cIterator.HasNext())
 			{
-				SRPWindows *pSRPWindows = cIterator.Next();
-				if (pSRPWindows->GetSceneRenderPassIndex() > nHigherIndex)
+				SRPWindow *pSRPWindow = cIterator.Next();
+				if (pSRPWindow->GetSceneRenderPassIndex() > nHigherIndex)
 				{
 					// if the window is top most, keep it
-					nHigherIndex = pSRPWindows->GetSceneRenderPassIndex();
-					pTopMostWindow = pSRPWindows;
+					nHigherIndex = pSRPWindow->GetSceneRenderPassIndex();
+					pTopMostWindow = pSRPWindow;
 				}
 			}
 
-			// return the top most window
+			// return the top most window, can be a nullptr
 			return pTopMostWindow;
 		}
 	}
@@ -744,32 +782,34 @@ bool Gui::SetMousePointerVisible(const bool &bVisible) const
 void Gui::DefaultCallBackHandler()
 {
 	// get the iterator for the windows
-	Iterator<SRPWindows*> cIterator = m_pWindows->GetIterator();
+	Iterator<SRPWindow*> cIterator = m_pWindows->GetIterator();
 	// loop trough the windows
 	while (cIterator.HasNext())
 	{
-		SRPWindows *pSRPWindows = cIterator.Next();
+		SRPWindow *pSRPWindow = cIterator.Next();
 
 		// check if callback is present
-		if (pSRPWindows->GetNumberOfCallBacks() > 0)
+		if (pSRPWindow->GetNumberOfCallBacks() > 0)
 		{
-			if (pSRPWindows->GetCallBack(DRAGWINDOW))
+			if (pSRPWindow->GetCallBack(DRAGWINDOW))
 			{
-				m_pDragWindow = pSRPWindows;
+				m_pDragWindow = pSRPWindow;
+				// call back is processed so we clear them
+				pSRPWindow->ClearCallBacks();
 			}
 
-			if (pSRPWindows->GetCallBack(HIDEWINDOW))
+			if (pSRPWindow->GetCallBack(HIDEWINDOW))
 			{
-				/*hide window*/
+				pSRPWindow->GetData()->bIsVisable = false;
+				// call back is processed so we clear them
+				pSRPWindow->ClearCallBacks();
 			}
 
-			if (pSRPWindows->GetCallBack(CLOSEWINDOW))
+			if (pSRPWindow->GetCallBack(CLOSEWINDOW))
 			{
-				/*close window*/
+				RemoveWindow(pSRPWindow->GetName());
+				// call back is processed and should get cleared by the remove window method
 			}
-
-			// call back is processed so we clear them
-			pSRPWindows->ClearCallBacks();
 		}
 	}
 }
@@ -777,7 +817,7 @@ void Gui::DefaultCallBackHandler()
 
 void Gui::KeyboardEvents(Control &cControl)
 {
-	/*i am not yet satisfied with this method*/
+	/*i am not yet satisfied with this method, so expect this to change*/
 
 	if (m_pFocusedWindow)
 	{
@@ -810,6 +850,10 @@ void Gui::KeyboardEvents(Control &cControl)
 					{
 						AddKey(cButton.GetName(), cButton.GetCharacter(), psButton);
 					}
+					else if (cButton.GetName() == "KeyboardReturn")
+					{
+						AddTextKey(cButton.GetName(), cButton.GetCharacter(), psButton);
+					}
 					else
 					{
 						psButton->bValid = false;
@@ -829,15 +873,6 @@ void Gui::KeyboardEvents(Control &cControl)
 					}
 					m_pKeyButtonHandler->Remove(cButton.GetName());
 				}
-
-				//DebugToConsole("Window: '" + m_pFocusedWindow->GetName() + "', GetName(): '" + String(cButton.GetName()) + "'\n");
-				//DebugToConsole("Window: '" + m_pFocusedWindow->GetName() + "', GetCharacter(): '" + String(cButton.GetCharacter()) + "'\n");
-				//DebugToConsole("Window: '" + m_pFocusedWindow->GetName() + "', IsPressed(): '" + String(cButton.IsPressed()) + "'\n");
-
-				/*DebugToConsole("Amount of text: " + String(m_pTextButtonHandler->GetNumOfElements()) + "\n");
-				DebugToConsole("Hit count: " + String(m_nTextKeyHitCount) + "\n\n");
-				DebugToConsole("Amount of keys: " + String(m_pKeyButtonHandler->GetNumOfElements()) + "\n");
-				DebugToConsole("Hit count: " + String(m_nKeyHitCount) + "\n\n\n");*/
 			}
 		}
 	}
@@ -884,6 +919,7 @@ void Gui::DragWindowHandler()
 				if (m_vLockMousePos == Vector2i::Zero)
 				{
 					// when dragging the window the tooltip should be empty
+					/*deprecate*/
 					m_pDragWindow->SetToolTip("");
 					// we need to lock the mouse position relative to the dragging window
 					m_vLockMousePos = m_pDragWindow->GetRelativeMousePosition(m_vLastKnownMousePos);
@@ -906,7 +942,7 @@ void Gui::DragWindowHandler()
 
 void Gui::KeyboardHandler()
 {
-	/*i am not yet satisfied with this method*/
+	/*i am not yet satisfied with this method, so expect this to change*/
 
 	if (m_pFocusedWindow)
 	{
@@ -1013,6 +1049,29 @@ void Gui::AddKey(const PLCore::String &sName, const char &nKey, sButton *psButto
 	psButton->nKey = nKey;
 	m_pKeyButtonHandler->Add(sName, psButton);
 	m_nKeyHitCount = 0;
+}
+
+
+void Gui::DebugNamesOfWindows()
+{
+	if (m_pWindows->GetNumOfElements() > 1)
+	{
+		DebugToConsole("Amount of windows found: " + String(m_pWindows->GetNumOfElements() - 1) + "\n");
+
+		Iterator<SRPWindow*> cIterator = m_pWindows->GetIterator();
+		while (cIterator.HasNext())
+		{
+			SRPWindow *pSRPWindow = cIterator.Next();
+			if (pSRPWindow->GetName() != BERKELIUMDUMMYWINDOW)
+			{
+				DebugToConsole("Window name: '" + pSRPWindow->GetName() + "'\n");
+				DebugToConsole("\t- Visible?: " + String(pSRPWindow->GetData()->bIsVisable ? "True" : "False") + "\n");
+				DebugToConsole("\t- Size: " + pSRPWindow->GetSize().ToString() + "\n");
+				DebugToConsole("\t- Position: " + pSRPWindow->GetPosition().ToString() + "\n");
+				DebugToConsole("\t- Loaded?: " + String(pSRPWindow->GetData()->bLoaded ? "True" : "False") + "\n\n");
+			}
+		}
+	}
 }
 
 

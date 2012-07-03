@@ -1,3 +1,16 @@
+>> 03.07.2012
+[IJH]
+- Renamed the SRPWindows class to SRPWindow, to prevent confusion because that class only manages one window.
+- Added some more comment to clarify certain choices.
+  -> Throughout the source i commented the things that need to be looked at or subject to change with to following structure /*COMMENT*/.
+     This means you can simple search for '/*' to find points of interest.
+     There are probably better ways of doing that but for now it is acceptable.
+- Their are some changes i made in PLBerkelium that still need to be mirrored back to PLAwesomium since they use a lot of the same features.
+  So expect those changes to be made to PLAwesomium as-well.
+  -> Some features will not be finalized until Awesomium releases their RC2 version (which will be within the next weeks).
+
+
+
 >> 01.07.2012
 [CO]
 - Added Visual Studio 2011 project files to make it possible to build and debug the project at least a little bit easier

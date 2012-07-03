@@ -52,6 +52,7 @@ SRPMousePointer::~SRPMousePointer()
 
 void SRPMousePointer::DebugToConsole(const String &sString)
 {
+	/*this should be deprecated when not needed anymore*/
 	System::GetInstance()->GetConsole().Print("PLBerkelium::SRPMousePointer - " + sString);
 }
 
@@ -175,7 +176,7 @@ bool SRPMousePointer::IsInitialized() const
 
 void SRPMousePointer::DestroyInstance() const
 {
-	// cleanup
+	// cleanup this instance
 	delete this;
 }
 

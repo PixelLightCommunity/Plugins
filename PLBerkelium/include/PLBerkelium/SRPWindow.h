@@ -101,20 +101,20 @@ struct sWidget
 //[-------------------------------------------------------]
 //[ Classes                                               ]
 //[-------------------------------------------------------]
-class SRPWindows : public PLScene::SceneRendererPass, public Berkelium::WindowDelegate {
+class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDelegate {
 
 
 	//[-------------------------------------------------------]
 	//[ RTTI interface                                        ]
 	//[-------------------------------------------------------]
-	pl_class(PLBERKELIUM_RTTI_EXPORT, SRPWindows, "PLBerkelium", PLScene::SceneRendererPass, "")
+	pl_class(PLBERKELIUM_RTTI_EXPORT, SRPWindow, "PLBerkelium", PLScene::SceneRendererPass, "")
 		pl_constructor_1(ParameterConstructor, const PLCore::String&, "", "")
 	pl_class_end
 
 
 	public:
-		PLBERKELIUM_API SRPWindows(const PLCore::String &sName);
-		PLBERKELIUM_API virtual ~SRPWindows();
+		PLBERKELIUM_API SRPWindow(const PLCore::String &sName);
+		PLBERKELIUM_API virtual ~SRPWindow();
 
 		PLBERKELIUM_API void SetRenderer(PLRenderer::Renderer *pRenderer);
 		PLBERKELIUM_API bool Initialize(PLRenderer::Renderer *pRenderer, const PLMath::Vector2 &vPosition, const PLMath::Vector2 &vImageSize);
@@ -126,7 +126,7 @@ class SRPWindows : public PLScene::SceneRendererPass, public Berkelium::WindowDe
 		PLBERKELIUM_API bool RemoveSceneRenderPass();
 		PLBERKELIUM_API void MoveToFront();
 		PLBERKELIUM_API PLCore::String GetName() const;
-		PLBERKELIUM_API void DestroyWindow();
+		PLBERKELIUM_API void DestroyBerkeliumWindow();
 		PLBERKELIUM_API PLMath::Vector2i GetPosition() const;
 		PLBERKELIUM_API PLMath::Vector2i GetSize() const;
 		PLBERKELIUM_API PLMath::Vector2i GetRelativeMousePosition(const PLMath::Vector2i &vMousePos) const;
@@ -191,7 +191,7 @@ class SRPWindows : public PLScene::SceneRendererPass, public Berkelium::WindowDe
 		void DrawWidget(sWidget *psWidget);
 		void DrawWidgets();
 
-		Berkelium::Window *m_pWindow;
+		Berkelium::Window *m_pBerkeliumWindow;
 		const PLCore::String m_sWindowName;
 		PLScene::SceneRenderer *m_pCurrentSceneRenderer;
 		PLRenderer::Renderer *m_pCurrentRenderer;
@@ -205,7 +205,7 @@ class SRPWindows : public PLScene::SceneRendererPass, public Berkelium::WindowDe
 		bool m_bReadyToDraw;
 		PLCore::String m_sLastKnownUrl;
 		Berkelium::Context *m_pBerkeliumContext;
-		SRPWindows *m_pToolTip;
+		SRPWindow *m_pToolTip;
 		bool m_bToolTipEnabled;
 		PLCore::HashMap<PLCore::String, sCallBack*> *m_pDefaultCallBacks;
 		PLCore::HashMap<PLCore::String, PLCore::DynFuncPtr> *m_pCallBackFunctions;
