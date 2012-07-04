@@ -27,6 +27,8 @@ pl_implement_class(Gui)
 //[ Functions		                                      ]
 //[-------------------------------------------------------]
 Gui::Gui() :
+	SlotOnUpdate(this),
+	SlotOnControl(this),
 	m_bBerkeliumInitialized(false),
 	m_bRenderersInitialized(false),
 	m_pWindows(new HashMap<String, SRPWindow*>),
@@ -35,10 +37,8 @@ Gui::Gui() :
 	m_pSRPMousePointer(nullptr),
 	m_pFocusedWindow(nullptr),
 	m_bControlsEnabled(true),
-	SlotOnUpdate(this),
 	m_bIsUpdateConnected(false),
 	m_bIsControllerConnected(false),
-	SlotOnControl(this),
 	m_sLastControl(""),
 	m_nLastMouseLeftReleaseTime(0),
 	m_pLastMouseWindow(nullptr),
@@ -68,6 +68,10 @@ Gui::~Gui()
 	DestroyMousePointer();
 	// we should stop berkelium from doing anything else
 	StopBerkelium();
+	// cleanup
+	delete m_pWindows;
+	delete m_pTextButtonHandler;
+	delete m_pKeyButtonHandler;
 }
 
 

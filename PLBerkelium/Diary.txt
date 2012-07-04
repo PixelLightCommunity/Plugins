@@ -1,3 +1,9 @@
+>> 04.07.2012
+[CO]
+- Bugfix "Gui": The memory of "m_pWindows", "m_pTextButtonHandler" and "m_pKeyButtonHandler" was not freed
+
+
+
 >> 03.07.2012
 [IJH]
 - Renamed the SRPWindows class to SRPWindow, to prevent confusion because that class only manages one window.

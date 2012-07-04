@@ -27,6 +27,8 @@ pl_implement_class(Gui)
 //[ Functions		                                      ]
 //[-------------------------------------------------------]
 Gui::Gui() :
+	SlotOnUpdate(this),
+	SlotOnControl(this),
 	m_pAwesomiumWebCore(nullptr),
 	m_bAwesomiumInitialized(false),
 	m_bRenderersInitialized(false),
@@ -36,10 +38,8 @@ Gui::Gui() :
 	m_pSRPMousePointer(nullptr),
 	m_pFocusedWindow(nullptr),
 	m_bControlsEnabled(true),
-	SlotOnUpdate(this),
 	m_bIsUpdateConnected(false),
 	m_bIsControllerConnected(false),
-	SlotOnControl(this),
 	m_sLastControl(""),
 	m_nLastMouseLeftReleaseTime(0),
 	m_pLastMouseWindow(nullptr),
@@ -68,6 +68,10 @@ Gui::~Gui()
 	RemoveMousePointer();
 	// we should stop awesomium from doing anything else
 	StopAwesomium();
+	// cleanup
+	delete m_pWindows;
+	delete m_pTextButtonHandler;
+	delete m_pKeyButtonHandler;
 }
 
 
