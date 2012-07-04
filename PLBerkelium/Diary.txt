@@ -1,6 +1,9 @@
 >> 04.07.2012
 [CO]
 - Bugfix "Gui": The memory of "m_pWindows", "m_pTextButtonHandler" and "m_pKeyButtonHandler" was not freed
+- When debugging, "SRPWindow::DestroyBerkeliumWindow()" -> "delete m_pBerkeliumWindow" caused a sudden program
+  termination without being able to close the application in a clean way. "Berkelium::Window::~Window()" states:
+  "\deprecated Use destroy() to avoid interference from custom allocators.". Review this.
 
 
 

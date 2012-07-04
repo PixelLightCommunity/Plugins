@@ -749,7 +749,11 @@ void SRPWindow::DestroyBerkeliumWindow()
 		/*make sure the following is required and valid*/
 
 		// delete window pointer
-		delete m_pBerkeliumWindow;
+		// [TODO](CO) When debugging, "SRPWindow::DestroyBerkeliumWindow()" -> "delete m_pBerkeliumWindow" caused a sudden program
+		// termination without being able to close the application in a clean way. "Berkelium::Window::~Window()" states:
+		// "\deprecated Use destroy() to avoid interference from custom allocators.". Review this.
+//		delete m_pBerkeliumWindow;
+
 		// set nullptr
 		m_pBerkeliumWindow = nullptr;
 	}
