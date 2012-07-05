@@ -59,6 +59,7 @@ namespace PLBerkelium {
 #define DRAGWINDOW "DragWindow"
 #define HIDEWINDOW "HideWindow"
 #define CLOSEWINDOW "CloseWindow"
+#define RESIZEWINDOW "ResizeWindow"
 
 
 //[-------------------------------------------------------]
@@ -82,12 +83,12 @@ struct sWindowsData
 
 struct sCallBack
 {
-	Berkelium::Window *pWindow;
-	void *replyMsg;
+	Berkelium::Window *pWindow;						/**< Shared, points to SRPWindow::m_pProgramWrapper, do not free the memory */
+	void *replyMsg;									//todo: verify this [05-juli-2012 Icefire] /**< Free the resource if you no longer need it */
 	Berkelium::URLString origin;
 	PLCore::String sFunctionName;
 	size_t nNumberOfParameters;
-	Berkelium::Script::Variant *pParameters;
+	Berkelium::Script::Variant *pParameters;		//todo: verify this [05-juli-2012 Icefire] /**< Free the resource if you no longer need it */
 };
 
 

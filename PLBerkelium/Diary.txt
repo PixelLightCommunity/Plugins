@@ -1,9 +1,19 @@
 >> 05.07.2012
+[IJH]
+ - Warnings that i am not sure about
+   -> "SRPWindows::~SRPWindows()" warning C4150: deletion of pointer to incomplete type 'PLRenderer::FragmentShader'; no destructor called
+   -> "SRPWindows::~SRPWindows()" warning C4150: deletion of pointer to incomplete type 'PLRenderer::VertexShader'; no destructor called
+ - Added Gui::ResizeWindowHandler()
+ - Implemented the default callback for resizing the window
+
+
+
+>> 05.07.2012
 [CO]
 - "SRPWindow::CreateVertexBuffer()" now calls "SRPWindow::UpdateVertexBuffer()" to fill the vertex buffer
   (no duplicated code, easier to maintain)
 - "SRPWindow::UpdateVertexBuffer()": Just update the content of the vertex buffer, no need to recreate the whole resource
-- "SRPWindow::CreateVertexBuffer()": Added a color vertex attribute, which was never used
+- "SRPWindow::CreateVertexBuffer()": Removed a color vertex attribute, which was never used
 - "SRPWindow::CreateVertexBuffer()": Vertex position had 3 components, but only 2 components were used
 - "SRPWindow::Initialize()" allocated a vertex buffer, texture buffer and program instance, but never freed the memory
 - "SRPWindow::CreateProgramWrapper()": Lookout! When creating a program, it only internally saves the pointer to the given
@@ -15,7 +25,7 @@
   pointer to the internal data is fast and this way you're on the safe side in case the image was changed and the internal data
   had to be recreated. With this approach, you also have on pointer less you have to heavily document.
 - "sWidget" has several resource pointers, was allocating them but never freeing them. It's a little bit hard for me to see
-  who is creating the resources, who is destroying the resources and how the memory managment is designed in general. More
+  who is creating the resources, who is destroying the resources and how the memory management is designed in general. More
   documentation would probably help. Please review my changes to ensure that I didn't messed it up.
 - The "ARGBtoRGBA_GLSL.h" content does not need to be visible to the whole project, keep your header lightweight
 

@@ -549,6 +549,7 @@ void Gui::OnUpdate()
 	KeyboardHandler();
 	DefaultCallBackHandler();
 	DragWindowHandler();
+	ResizeWindowHandler();
 	// resize window handler
 }
 
@@ -801,18 +802,22 @@ void Gui::DefaultCallBackHandler()
 				// call back is processed so we clear them
 				pSRPWindow->ClearCallBacks();
 			}
-
-			if (pSRPWindow->GetCallBack(HIDEWINDOW))
+			else if (pSRPWindow->GetCallBack(HIDEWINDOW))
 			{
 				pSRPWindow->GetData()->bIsVisable = false;
 				// call back is processed so we clear them
 				pSRPWindow->ClearCallBacks();
 			}
-
-			if (pSRPWindow->GetCallBack(CLOSEWINDOW))
+			else if (pSRPWindow->GetCallBack(CLOSEWINDOW))
 			{
 				RemoveWindow(pSRPWindow->GetName());
 				// call back is processed and should get cleared by the remove window method
+			}
+			else if (pSRPWindow->GetCallBack(RESIZEWINDOW))
+			{
+				m_pResizeWindow = pSRPWindow;
+				// call back is processed so we clear them
+				pSRPWindow->ClearCallBacks();
 			}
 		}
 	}
@@ -1074,6 +1079,67 @@ void Gui::DebugNamesOfWindows()
 				DebugToConsole("\t- Position: " + pSRPWindow->GetPosition().ToString() + "\n");
 				DebugToConsole("\t- Loaded?: " + String(pSRPWindow->GetData()->bLoaded ? "True" : "False") + "\n\n");
 			}
+		}
+	}
+}
+
+
+void Gui::ResizeWindowHandler()
+{
+	if (m_pResizeWindow)
+	{
+		if (m_bMouseLeftDown)
+		{
+			if (m_bMouseMoved)
+			{
+				// check if we already locked the mouse position
+				if (m_vLockMousePos == Vector2i::Zero)
+				{
+					// when resizing the window the tooltip should be empty
+					/*deprecate*/
+					m_pResizeWindow->SetToolTip("");
+					// we need to lock the mouse position relative to the resizing window
+					m_vLockMousePos = m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos);
+				}
+
+				if (m_vLockMousePos == m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos))
+				{
+					// locked mouse position has not changed
+				}
+				else if (m_vLockMousePos < m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos))
+				{
+					DebugToConsole("the window should grow\n");
+					// we get the new size
+					Vector2i vNewSize = m_pResizeWindow->GetSize() + (m_vLockMousePos + m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos));
+
+					// we resize the window
+					m_pResizeWindow->ResizeWindow(vNewSize.x, vNewSize.y);
+
+					// we should reset the locked mouse position since the window has been resized
+					m_vLockMousePos = Vector2i::Zero;
+				}
+				else if (m_vLockMousePos > m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos))
+				{
+					DebugToConsole("the window should shrink\n");
+					// we get the new size
+					Vector2i vNewSize = m_pResizeWindow->GetSize() - (m_vLockMousePos - m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos));
+
+					// we resize the window
+					m_pResizeWindow->ResizeWindow(vNewSize.x, vNewSize.y);
+
+					// we should reset the locked mouse position since the window has been resized
+					m_vLockMousePos = Vector2i::Zero;
+				}
+				
+				// after its all done we reset the mouse moved status so that we do not keep doing this repeatedly
+				m_bMouseMoved = false;
+			}
+		}
+		else
+		{
+			// the left mouse is not pressed anymore so we can reset the following
+			m_vLockMousePos = Vector2i::Zero;
+			m_pResizeWindow = nullptr;
 		}
 	}
 }

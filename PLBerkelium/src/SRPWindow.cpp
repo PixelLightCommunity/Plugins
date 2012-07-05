@@ -76,10 +76,12 @@ SRPWindow::~SRPWindow()
 	}
 	if (nullptr != m_pFragmentShader)
 	{
+		//todo: warning C4150: deletion of pointer to incomplete type 'PLRenderer::FragmentShader'; no destructor called [05-juli-2012 Icefire]
 		delete m_pFragmentShader;
 	}
 	if (nullptr != m_pVertexShader)
 	{
+		//todo: warning C4150: deletion of pointer to incomplete type 'PLRenderer::VertexShader'; no destructor called [05-juli-2012 Icefire]
 		delete m_pVertexShader;
 	}
 	if (nullptr != m_pTextureBuffer)
@@ -857,10 +859,21 @@ void SRPWindow::onJavascriptCallback(Berkelium::Window *win, void *replyMsg, Ber
 	// check if the callback is part of the default ones
 	if (pCallBack->sFunctionName == DRAGWINDOW ||
 		pCallBack->sFunctionName == HIDEWINDOW ||
-		pCallBack->sFunctionName == CLOSEWINDOW)
+		pCallBack->sFunctionName == CLOSEWINDOW ||
+		pCallBack->sFunctionName == RESIZEWINDOW)
 	{
 		// add the callback to the hashmap so that the Gui class can process it
 		m_pDefaultCallBacks->Add(pCallBack->sFunctionName, pCallBack);
+	}
+	else
+	{
+		// we do not need the callback struct and its data anymore
+
+		// i am not sure if you need to cleanup the children of a struct when you delete a struct
+		//todo: make sure this is proper and needed [05-juli-2012 Icefire]
+		delete pCallBack->pParameters;
+		delete pCallBack->replyMsg;
+		delete pCallBack;
 	}
 }
 
@@ -1070,13 +1083,12 @@ bool SRPWindow::RemoveCallBack(const String &sKey) const
 void SRPWindow::SetDefaultCallBackFunctions()
 {
 	// bind the default javascript functions for use
-	// this allows for users to set default javascript functions within their web page to be able to move, hide and close a window
-
-	/*resize window will be added once a proper approach to do so is realized*/
+	// this allows for users to set default javascript functions within their web page to be able to drag, hide, close and resize a window
 
 	GetBerkeliumWindow()->addBindOnStartLoading(Berkelium::WideString::point_to(String(DRAGWINDOW).GetUnicode()), Berkelium::Script::Variant::bindFunction(Berkelium::WideString::point_to(String(DRAGWINDOW).GetUnicode()), false));
 	GetBerkeliumWindow()->addBindOnStartLoading(Berkelium::WideString::point_to(String(HIDEWINDOW).GetUnicode()), Berkelium::Script::Variant::bindFunction(Berkelium::WideString::point_to(String(HIDEWINDOW).GetUnicode()), false));
 	GetBerkeliumWindow()->addBindOnStartLoading(Berkelium::WideString::point_to(String(CLOSEWINDOW).GetUnicode()), Berkelium::Script::Variant::bindFunction(Berkelium::WideString::point_to(String(CLOSEWINDOW).GetUnicode()), false));
+	GetBerkeliumWindow()->addBindOnStartLoading(Berkelium::WideString::point_to(String(RESIZEWINDOW).GetUnicode()), Berkelium::Script::Variant::bindFunction(Berkelium::WideString::point_to(String(RESIZEWINDOW).GetUnicode()), false));
 }
 
 

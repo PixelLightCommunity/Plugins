@@ -135,6 +135,7 @@ class Gui : public PLCore::Object {
 		void KeyboardHandler();
 		void AddTextKey(const PLCore::String &sName, const PLCore::String &sKey, sButton *psButton);
 		void AddKey(const PLCore::String &sName, const char &nKey, sButton *psButton);
+		void ResizeWindowHandler();
 
 		bool m_bBerkeliumInitialized;
 		bool m_bRenderersInitialized;
