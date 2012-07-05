@@ -4,6 +4,7 @@
   (no duplicated code, easier to maintain)
 - "SRPWindow::UpdateVertexBuffer()": Just update the content of the vertex buffer, no need to recreate the whole resource
 - "SRPWindow::CreateVertexBuffer()": Added a color vertex attribute, which was never used
+- "SRPWindow::CreateVertexBuffer()": Vertex position had 3 components, but only 2 components were used
 
 
 

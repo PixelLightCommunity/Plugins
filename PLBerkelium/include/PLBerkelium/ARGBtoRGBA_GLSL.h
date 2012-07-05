@@ -13,7 +13,7 @@
 // GLSL (OpenGL 2.0 ("#version 110") and OpenGL ES 2.0 ("#version 100")) vertex shader source code, "#version" is added by hand
 static const PLCore::String sBerkeliumVertexShaderSourceCodeGLSL = STRINGIFY(
 // Attributes
-attribute highp vec3 VertexPosition;	// Object space vertex position input
+attribute highp vec2 VertexPosition;	// Object space vertex position input
 attribute lowp  vec2 VertexTexCoord;	// Vertex texture coordinate input
 varying   lowp  vec2 VertexTexCoordVS;	// Vertex texture coordinate output
 
@@ -24,7 +24,7 @@ uniform highp mat4 ObjectSpaceToClipSpaceMatrix;	// Object space to clip space m
 void main()
 {
 	// Calculate the clip space vertex position, lower/left is (-1,-1) and upper/right is (1,1)
-	gl_Position = ObjectSpaceToClipSpaceMatrix*vec4(VertexPosition, 1);
+	gl_Position = ObjectSpaceToClipSpaceMatrix*vec4(VertexPosition, 0.0, 1.0);
 
 	// In case you want to have a fullscreen quad in here, replace the line above by
 //	gl_Position = vec4(VertexPosition, 1);
