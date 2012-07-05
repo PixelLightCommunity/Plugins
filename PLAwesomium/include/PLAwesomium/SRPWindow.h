@@ -34,8 +34,6 @@
 #include "Awesomium/BitmapSurface.h"
 #include "Awesomium/WebViewListener.h"
 
-#include "ARGBtoRGBA_GLSL.h"
-
 #include "PLAwesomium.h"
 
 

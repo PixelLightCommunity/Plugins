@@ -197,11 +197,13 @@ ProgramWrapper *SRPWindow::CreateProgramWrapper()
 		// account for OpenGL version
 		if (m_pCurrentRenderer->GetAPI() == "OpenGL ES 2.0")
 		{
+			#include "ARGBtoRGBA_GLSL.h"
 			sVertexShaderSourceCode   = "#version 100\n" + sBerkeliumVertexShaderSourceCodeGLSL;
 			sFragmentShaderSourceCode = "#version 100\n" + sBerkeliumFragmentShaderSourceCodeGLSL;
 		}
 		else
 		{
+			#include "ARGBtoRGBA_GLSL.h"
 			sVertexShaderSourceCode   = "#version 110\n" + Shader::RemovePrecisionQualifiersFromGLSL(sBerkeliumVertexShaderSourceCodeGLSL);
 			sFragmentShaderSourceCode = "#version 110\n" + Shader::RemovePrecisionQualifiersFromGLSL(sBerkeliumFragmentShaderSourceCodeGLSL);
 		}

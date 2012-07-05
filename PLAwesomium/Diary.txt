@@ -14,6 +14,7 @@
   you already have the nice image class as part of your class and don't need to care about memory management. Requesting the
   pointer to the internal data is fast and this way you're on the safe side in case the image was changed and the internal data
   had to be recreated. With this approach, you also have on pointer less you have to heavily document.
+- The "ARGBtoRGBA_GLSL.h" content does not need to be visible to the whole project, keep your header lightweight
 
 
 

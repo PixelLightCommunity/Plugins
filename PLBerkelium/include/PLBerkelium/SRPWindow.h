@@ -34,8 +34,6 @@
 #include "berkelium/Widget.hpp"
 #include "berkelium/ScriptUtil.hpp"
 
-#include "ARGBtoRGBA_GLSL.h"
-
 #include "PLBerkelium.h"
 
 
