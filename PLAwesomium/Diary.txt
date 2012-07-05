@@ -1,9 +1,17 @@
 >> 05.07.2012
+[IJH]
+ - Warnings that i am not sure about
+   -> "SRPWindows::~SRPWindows()" warning C4150: deletion of pointer to incomplete type 'PLRenderer::FragmentShader'; no destructor called
+   -> "SRPWindows::~SRPWindows()" warning C4150: deletion of pointer to incomplete type 'PLRenderer::VertexShader'; no destructor called
+
+
+
+>> 05.07.2012
 [CO]
 - "SRPWindow::CreateVertexBuffer()" now calls "SRPWindow::UpdateVertexBuffer()" to fill the vertex buffer
   (no duplicated code, easier to maintain)
 - "SRPWindow::UpdateVertexBuffer()": Just update the content of the vertex buffer, no need to recreate the whole resource
-- "SRPWindow::CreateVertexBuffer()": Added a color vertex attribute, which was never used
+- "SRPWindow::CreateVertexBuffer()": Removed a color vertex attribute, which was never used
 - "SRPWindow::CreateVertexBuffer()": Vertex position had 3 components, but only 2 components were used
 - "SRPWindow::Initialize()" allocated a vertex buffer, texture buffer and program instance, but never freed the memory
 - "SRPWindow::CreateProgramWrapper()": Lookout! When creating a program, it only internally saves the pointer to the given
