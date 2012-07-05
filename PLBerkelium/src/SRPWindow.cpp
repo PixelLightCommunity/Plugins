@@ -64,6 +64,19 @@ SRPWindow::~SRPWindow()
 	DestroyContext();
 	// destroy the tool tip window
 	DestroyToolTipWindow();
+	// cleanup
+	if (nullptr != m_pVertexBuffer)
+	{
+		delete m_pVertexBuffer;
+	}
+	if (nullptr != m_pProgramWrapper)
+	{
+		delete m_pProgramWrapper;
+	}
+	if (nullptr != m_pTextureBuffer)
+	{
+		delete m_pTextureBuffer;
+	}
 }
 
 
