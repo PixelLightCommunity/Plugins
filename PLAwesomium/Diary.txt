@@ -3,6 +3,7 @@
 - "SRPWindow::CreateVertexBuffer()" now calls "SRPWindow::UpdateVertexBuffer()" to fill the vertex buffer
   (no duplicated code, easier to maintain)
 - "SRPWindow::UpdateVertexBuffer()": Just update the content of the vertex buffer, no need to recreate the whole resource
+- "SRPWindow::CreateVertexBuffer()": Added a color vertex attribute, which was never used
 
 
 

@@ -75,7 +75,6 @@ VertexBuffer *SRPWindows::CreateVertexBuffer(const Vector2 &vPosition, const Vec
 	{
 		// setup and allocate the vertex buffer
 		pVertexBuffer->AddVertexAttribute(VertexBuffer::Position, 0, VertexBuffer::Float3);
-		pVertexBuffer->AddVertexAttribute(VertexBuffer::Color,    0, VertexBuffer::RGBA);
 		pVertexBuffer->AddVertexAttribute(VertexBuffer::TexCoord, 0, VertexBuffer::Float2);
 		pVertexBuffer->Allocate(4, Usage::WriteOnly);
 
