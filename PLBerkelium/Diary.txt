@@ -10,6 +10,10 @@
   shaders, but does not take over the shader resource control. You need to destroy the shaders if you no longer need them.
   -> This is something I changed in the new renderer system I am currently working on. In there, I now use reference counter
      to make the usage of the resources easier and to avoid such situations I just fixed.
+- "SRPWindow": If you don't need to cache a pointer, don't do it. In case of "m_pImageBuffer = m_cImage.GetBuffer()->GetData()"
+  you already have the nice image class as part of your class and don't need to care about memory management. Requesting the
+  pointer to the internal data is fast and this way you're on the safe side in case the image was changed and the internal data
+  had to be recreated. With this approach, you also have on pointer less you have to heavily document.
 
 
 

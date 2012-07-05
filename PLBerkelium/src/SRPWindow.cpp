@@ -36,7 +36,6 @@ SRPWindow::SRPWindow(const String &sName) :
 	m_pProgramWrapper(nullptr),
 	m_pTextureBuffer(nullptr),
 	m_cImage(),
-	m_pImageBuffer(nullptr),
 	m_psWindowsData(new sWindowsData),
 	m_bInitialized(false),
 	m_bReadyToDraw(false),
@@ -115,7 +114,7 @@ void SRPWindow::onPaint(Berkelium::Window *win, const unsigned char *sourceBuffe
 		if (m_psWindowsData->bNeedsFullUpdate)
 		{
 			// awaiting a full update disregard all partials ones until the full one comes in
-			BufferCopyFull(m_pImageBuffer, m_psWindowsData->nFrameWidth, m_psWindowsData->nFrameHeight, sourceBuffer, sourceBufferRect);
+			BufferCopyFull(m_cImage.GetBuffer()->GetData(), m_psWindowsData->nFrameWidth, m_psWindowsData->nFrameHeight, sourceBuffer, sourceBufferRect);
 			BufferUploadToGPU();
 			m_psWindowsData->bNeedsFullUpdate = false;
 		}
@@ -124,7 +123,7 @@ void SRPWindow::onPaint(Berkelium::Window *win, const unsigned char *sourceBuffe
 			if (sourceBufferRect.width() == m_psWindowsData->nFrameWidth && sourceBufferRect.height() == m_psWindowsData->nFrameHeight)
 			{
 				// did not suspect a full update but got it anyway, it might happen and is ok
-				BufferCopyFull(m_pImageBuffer, m_psWindowsData->nFrameWidth, m_psWindowsData->nFrameHeight, sourceBuffer, sourceBufferRect);
+				BufferCopyFull(m_cImage.GetBuffer()->GetData(), m_psWindowsData->nFrameWidth, m_psWindowsData->nFrameHeight, sourceBuffer, sourceBufferRect);
 				BufferUploadToGPU();
 			}
 			else
@@ -132,13 +131,13 @@ void SRPWindow::onPaint(Berkelium::Window *win, const unsigned char *sourceBuffe
 				if (dx != 0 || dy != 0)
 				{
 					// a scroll has taken place
-					BufferCopyScroll(m_pImageBuffer, m_psWindowsData->nFrameWidth, m_psWindowsData->nFrameHeight, sourceBuffer, sourceBufferRect, numCopyRects, copyRects, dx, dy, scrollRect);
+					BufferCopyScroll(m_cImage.GetBuffer()->GetData(), m_psWindowsData->nFrameWidth, m_psWindowsData->nFrameHeight, sourceBuffer, sourceBufferRect, numCopyRects, copyRects, dx, dy, scrollRect);
 					BufferUploadToGPU();
 				}
 				else
 				{
 					// normal partial updates
-					BufferCopyRects(m_pImageBuffer, m_psWindowsData->nFrameWidth, m_psWindowsData->nFrameHeight, sourceBuffer, sourceBufferRect, numCopyRects, copyRects);
+					BufferCopyRects(m_cImage.GetBuffer()->GetData(), m_psWindowsData->nFrameWidth, m_psWindowsData->nFrameHeight, sourceBuffer, sourceBufferRect, numCopyRects, copyRects);
 					BufferUploadToGPU();
 				}
 			}
@@ -306,9 +305,7 @@ bool SRPWindow::Initialize(Renderer *pRenderer, const Vector2 &vPosition, const 
 		if (m_pTextureBuffer)
 		{
 			// create the image buffer
-			m_pImageBuffer = m_cImage.GetBuffer()->GetData();
-
-			if (m_pImageBuffer)
+			if (nullptr != m_cImage.GetBuffer()->GetData())
 			{
 				// create a berkelium window
 				CreateBerkeliumWindow();
@@ -474,7 +471,7 @@ void SRPWindow::BufferUploadToGPU()
 	if (m_bInitialized)
 	{
 		// upload data to GPU
-		m_pTextureBuffer->CopyDataFrom(0, TextureBuffer::R8G8B8A8, m_pImageBuffer);
+		m_pTextureBuffer->CopyDataFrom(0, TextureBuffer::R8G8B8A8, m_cImage.GetBuffer()->GetData());
 		// set state for future usage
 		if (!m_bReadyToDraw) m_bReadyToDraw = true;
 	}
@@ -1001,7 +998,6 @@ void SRPWindow::ResizeWindow(const int &nWidth, const int &nHeight)
 
 	m_cImage = Image::CreateImage(DataByte, ColorRGBA, Vector3i(m_psWindowsData->nFrameWidth, m_psWindowsData->nFrameHeight, 1));
 	m_pTextureBuffer = reinterpret_cast<TextureBuffer*>(m_pCurrentRenderer->CreateTextureBuffer2D(m_cImage, TextureBuffer::Unknown, 0));
-	m_pImageBuffer = m_cImage.GetBuffer()->GetData();
 
 	UpdateVertexBuffer(m_pVertexBuffer, Vector2(float(m_psWindowsData->nXPos), float(m_psWindowsData->nYPos)), Vector2(float(m_psWindowsData->nFrameWidth), float(m_psWindowsData->nFrameHeight)));
 

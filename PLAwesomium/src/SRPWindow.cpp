@@ -37,7 +37,6 @@ SRPWindows::SRPWindows(const String &sName) :
 	m_pProgramWrapper(nullptr),
 	m_pTextureBuffer(nullptr),
 	m_cImage(),
-	m_pImageBuffer(nullptr),
 	m_psWindowsData(new sWindowsData),
 	m_bInitialized(false),
 	m_bReadyToDraw(false),
@@ -240,9 +239,7 @@ bool SRPWindows::Initialize(Renderer *pRenderer, const Vector2 &vPosition, const
 		if (m_pTextureBuffer)
 		{
 			// create the image buffer
-			m_pImageBuffer = m_cImage.GetBuffer()->GetData();
-
-			if (m_pImageBuffer)
+			if (nullptr != m_cImage.GetBuffer()->GetData())
 			{
 				// create a awesomium window
 				CreateAwesomiumWindow();
@@ -382,7 +379,7 @@ void SRPWindows::BufferUploadToGPU()
 	if (m_bInitialized)
 	{
 		// upload data to GPU
-		m_pTextureBuffer->CopyDataFrom(0, TextureBuffer::R8G8B8A8, m_pImageBuffer);
+		m_pTextureBuffer->CopyDataFrom(0, TextureBuffer::R8G8B8A8, m_cImage.GetBuffer()->GetData());
 		// set state for future usage
 		if (!m_bReadyToDraw) m_bReadyToDraw = true;
 	}
@@ -545,7 +542,6 @@ void SRPWindows::ResizeWindow(const int &nWidth, const int &nHeight)
 
 	m_cImage = Image::CreateImage(DataByte, ColorRGBA, Vector3i(m_psWindowsData->nFrameWidth, m_psWindowsData->nFrameHeight, 1));
 	m_pTextureBuffer = reinterpret_cast<TextureBuffer*>(m_pCurrentRenderer->CreateTextureBuffer2D(m_cImage, TextureBuffer::Unknown, 0));
-	m_pImageBuffer = m_cImage.GetBuffer()->GetData();
 
 	UpdateVertexBuffer(m_pVertexBuffer, Vector2(float(m_psWindowsData->nXPos), float(m_psWindowsData->nYPos)), Vector2(float(m_psWindowsData->nFrameWidth), float(m_psWindowsData->nFrameHeight)));
 
@@ -642,7 +638,7 @@ void SRPWindows::UpdateCall()
 	{
 		if (surface->is_dirty())
 		{
-			surface->CopyTo(m_pImageBuffer, m_psWindowsData->nFrameWidth * 4, 4, false, false);
+			surface->CopyTo(m_cImage.GetBuffer()->GetData(), m_psWindowsData->nFrameWidth * 4, 4, false, false);
 			surface->set_is_dirty(false);
 			BufferUploadToGPU();
 		}

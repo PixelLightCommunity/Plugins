@@ -190,7 +190,6 @@ class SRPWindows : public PLScene::SceneRendererPass,
 		PLRenderer::ProgramWrapper *m_pProgramWrapper;
 		PLRenderer::TextureBuffer *m_pTextureBuffer;
 		PLGraphics::Image m_cImage;
-		PLCore::uint8 *m_pImageBuffer;
 		sWindowsData *m_psWindowsData;
 		bool m_bInitialized;
 		bool m_bReadyToDraw;
