@@ -73,59 +73,14 @@ VertexBuffer *SRPWindows::CreateVertexBuffer(const Vector2 &vPosition, const Vec
 	VertexBuffer *pVertexBuffer = m_pCurrentRenderer->CreateVertexBuffer();
 	if (pVertexBuffer)
 	{
+		// setup and allocate the vertex buffer
 		pVertexBuffer->AddVertexAttribute(VertexBuffer::Position, 0, VertexBuffer::Float3);
 		pVertexBuffer->AddVertexAttribute(VertexBuffer::Color,    0, VertexBuffer::RGBA);
 		pVertexBuffer->AddVertexAttribute(VertexBuffer::TexCoord, 0, VertexBuffer::Float2);
 		pVertexBuffer->Allocate(4, Usage::WriteOnly);
 
-		// Setup the vertex buffer
-		if (pVertexBuffer->Lock(Lock::WriteOnly))
-		{
-			float fZValue2D(0.0f);
-			Vector2 vTextureCoordinate(Vector2::Zero);
-			Vector2 vTextureCoordinateSize(Vector2::One);
-			float fTextureCoordinateScaleX(1.0f);
-			float fTextureCoordinateScaleY(1.0f);
-
-			// Vertex 0
-			float *pfVertex = static_cast<float*>(pVertexBuffer->GetData(0, VertexBuffer::Position));
-			pfVertex[0] = vPosition.x;
-			pfVertex[1] = vPosition.y + vImageSize.y;
-			pfVertex[2] = fZValue2D;
-			pfVertex	= static_cast<float*>(pVertexBuffer->GetData(0, VertexBuffer::TexCoord));
-			pfVertex[0] = vTextureCoordinate.x*fTextureCoordinateScaleX;
-			pfVertex[1] = (vTextureCoordinate.y + vTextureCoordinateSize.y)*fTextureCoordinateScaleY;
-
-			// Vertex 1
-			pfVertex	= static_cast<float*>(pVertexBuffer->GetData(1, VertexBuffer::Position));
-			pfVertex[0] = vPosition.x + vImageSize.x;
-			pfVertex[1] = vPosition.y + vImageSize.y;
-			pfVertex[2] = fZValue2D;
-			pfVertex	= static_cast<float*>(pVertexBuffer->GetData(1, VertexBuffer::TexCoord));
-			pfVertex[0] = (vTextureCoordinate.x + vTextureCoordinateSize.x)*fTextureCoordinateScaleX;
-			pfVertex[1] = (vTextureCoordinate.y + vTextureCoordinateSize.y)*fTextureCoordinateScaleY;
-
-			// Vertex 2
-			pfVertex	= static_cast<float*>(pVertexBuffer->GetData(2, VertexBuffer::Position));
-			pfVertex[0] = vPosition.x;
-			pfVertex[1] = vPosition.y;
-			pfVertex[2] = fZValue2D;
-			pfVertex	= static_cast<float*>(pVertexBuffer->GetData(2, VertexBuffer::TexCoord));
-			pfVertex[0] = vTextureCoordinate.x*fTextureCoordinateScaleX;
-			pfVertex[1] = vTextureCoordinate.y*fTextureCoordinateScaleY;
-
-			// Vertex 3
-			pfVertex	= static_cast<float*>(pVertexBuffer->GetData(3, VertexBuffer::Position));
-			pfVertex[0] = vPosition.x + vImageSize.x;
-			pfVertex[1] = vPosition.y;
-			pfVertex[2] = fZValue2D;
-			pfVertex	= static_cast<float*>(pVertexBuffer->GetData(3, VertexBuffer::TexCoord));
-			pfVertex[0] = (vTextureCoordinate.x + vTextureCoordinateSize.x)*fTextureCoordinateScaleX;
-			pfVertex[1] = vTextureCoordinate.y*fTextureCoordinateScaleY;
-
-			// Unlock the vertex buffer
-			pVertexBuffer->Unlock();
-		}
+		// fill the vertex buffer
+		UpdateVertexBuffer(pVertexBuffer, vPosition, vImageSize);
 
 		// return the created vertex buffer
 		return pVertexBuffer;

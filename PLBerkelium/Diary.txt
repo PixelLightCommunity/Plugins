@@ -1,3 +1,10 @@
+>> 05.07.2012
+[CO]
+- "SRPWindow::CreateVertexBuffer()" now calls "SRPWindow::UpdateVertexBuffer()" to fill the vertex buffer
+  (no duplicated code, easier to maintain)
+
+
+
 >> 04.07.2012
 [CO]
 - Bugfix "Gui": The memory of "m_pWindows", "m_pTextButtonHandler" and "m_pKeyButtonHandler" was not freed
