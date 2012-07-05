@@ -541,6 +541,10 @@ void SRPWindows::ResizeWindow(const int &nWidth, const int &nHeight)
 	m_psWindowsData->nFrameHeight = nHeight;
 
 	m_cImage = Image::CreateImage(DataByte, ColorRGBA, Vector3i(m_psWindowsData->nFrameWidth, m_psWindowsData->nFrameHeight, 1));
+	if (nullptr != m_pTextureBuffer)
+	{
+		delete m_pTextureBuffer;
+	}
 	m_pTextureBuffer = reinterpret_cast<TextureBuffer*>(m_pCurrentRenderer->CreateTextureBuffer2D(m_cImage, TextureBuffer::Unknown, 0));
 
 	UpdateVertexBuffer(m_pVertexBuffer, Vector2(float(m_psWindowsData->nXPos), float(m_psWindowsData->nYPos)), Vector2(float(m_psWindowsData->nFrameWidth), float(m_psWindowsData->nFrameHeight)));

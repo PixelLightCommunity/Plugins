@@ -187,38 +187,46 @@ void SRPWindow::SetRenderer(Renderer *pRenderer)
 
 ProgramWrapper *SRPWindow::CreateProgramWrapper()
 {
-	// declare vertex and fragment shader
-	String sVertexShaderSourceCode;
-	String sFragmentShaderSourceCode;
-
-	// account for OpenGL version
-	if (m_pCurrentRenderer->GetAPI() == "OpenGL ES 2.0")
+	// is there already a program instance?
+	if (nullptr == m_pProgramWrapper)
 	{
-		sVertexShaderSourceCode   = "#version 100\n" + sBerkeliumVertexShaderSourceCodeGLSL;
-		sFragmentShaderSourceCode = "#version 100\n" + sBerkeliumFragmentShaderSourceCodeGLSL;
+		// declare vertex and fragment shader
+		String sVertexShaderSourceCode;
+		String sFragmentShaderSourceCode;
+
+		// account for OpenGL version
+		if (m_pCurrentRenderer->GetAPI() == "OpenGL ES 2.0")
+		{
+			sVertexShaderSourceCode   = "#version 100\n" + sBerkeliumVertexShaderSourceCodeGLSL;
+			sFragmentShaderSourceCode = "#version 100\n" + sBerkeliumFragmentShaderSourceCodeGLSL;
+		}
+		else
+		{
+			sVertexShaderSourceCode   = "#version 110\n" + Shader::RemovePrecisionQualifiersFromGLSL(sBerkeliumVertexShaderSourceCodeGLSL);
+			sFragmentShaderSourceCode = "#version 110\n" + Shader::RemovePrecisionQualifiersFromGLSL(sBerkeliumFragmentShaderSourceCodeGLSL);
+		}
+
+		// create the vertex and fragment shader
+		m_pVertexShader = m_pCurrentRenderer->GetShaderLanguage(m_pCurrentRenderer->GetDefaultShaderLanguage())->CreateVertexShader(sVertexShaderSourceCode, "arbvp1");
+		m_pFragmentShader = m_pCurrentRenderer->GetShaderLanguage(m_pCurrentRenderer->GetDefaultShaderLanguage())->CreateFragmentShader(sFragmentShaderSourceCode, "arbfp1");
+
+		// create the program wrapper
+		m_pProgramWrapper = static_cast<ProgramWrapper*>(m_pCurrentRenderer->GetShaderLanguage(m_pCurrentRenderer->GetDefaultShaderLanguage())->CreateProgram(m_pVertexShader, m_pFragmentShader));
+		if (m_pProgramWrapper)
+		{
+			// return the created program wrapper
+			return m_pProgramWrapper;
+		}
+		else
+		{
+			// return nothing because the program wrapper could not be created
+			return nullptr;
+		}
 	}
 	else
 	{
-		sVertexShaderSourceCode   = "#version 110\n" + Shader::RemovePrecisionQualifiersFromGLSL(sBerkeliumVertexShaderSourceCodeGLSL);
-		sFragmentShaderSourceCode = "#version 110\n" + Shader::RemovePrecisionQualifiersFromGLSL(sBerkeliumFragmentShaderSourceCodeGLSL);
-	}
-
-	// create the vertex and fragment shader
-	m_pVertexShader = m_pCurrentRenderer->GetShaderLanguage(m_pCurrentRenderer->GetDefaultShaderLanguage())->CreateVertexShader(sVertexShaderSourceCode, "arbvp1");
-	m_pFragmentShader = m_pCurrentRenderer->GetShaderLanguage(m_pCurrentRenderer->GetDefaultShaderLanguage())->CreateFragmentShader(sFragmentShaderSourceCode, "arbfp1");
-
-	// create the program wrapper
-	ProgramWrapper *pProgram = static_cast<ProgramWrapper*>(m_pCurrentRenderer->GetShaderLanguage(m_pCurrentRenderer->GetDefaultShaderLanguage())->CreateProgram(m_pVertexShader, m_pFragmentShader));
-
-	if (pProgram)
-	{
-		// return the created program wrapper
-		return pProgram;
-	}
-	else
-	{
-		// return nothing because the program wrapper could not be created
-		return nullptr;
+		// return the already existing program instance
+		return m_pProgramWrapper;
 	}
 }
 
@@ -1093,6 +1101,18 @@ void SRPWindow::onWidgetDestroyed(Berkelium::Window *win, Berkelium::Widget *wid
 	sWidget *psWidget = m_pWidgets->Get(wid);
 	if (psWidget)
 	{
+		// delete the resources used by this widget
+		if (nullptr != psWidget->pVertexBuffer)
+		{
+			delete psWidget->pVertexBuffer;
+			psWidget->pVertexBuffer = nullptr;
+		}
+		if (nullptr != psWidget->pTextureBuffer)
+		{
+			delete psWidget->pTextureBuffer;
+			psWidget->pTextureBuffer = nullptr;
+		}
+
 		// remove it
 		m_pWidgets->Remove(wid);
 	}
@@ -1129,8 +1149,9 @@ void SRPWindow::onWidgetPaint(Berkelium::Window *win, Berkelium::Widget *wid, co
 		if (psWidget->bNeedsFullUpdate)
 		{
 			// awaiting a full update disregard all partials ones until the full comes in
-			BufferCopyFull(psWidget->pImageBuffer, psWidget->nWidth, psWidget->nHeight, sourceBuffer, sourceBufferRect);
-			psWidget->pTextureBuffer->CopyDataFrom(0, TextureBuffer::R8G8B8A8, psWidget->pImageBuffer);
+			uint8 *pImageBuffer = psWidget->cImage.GetBuffer()->GetData();
+			BufferCopyFull(pImageBuffer, psWidget->nWidth, psWidget->nHeight, sourceBuffer, sourceBufferRect);
+			psWidget->pTextureBuffer->CopyDataFrom(0, TextureBuffer::R8G8B8A8, pImageBuffer);
 			psWidget->bNeedsFullUpdate = false;
 		}
 		else
@@ -1138,22 +1159,25 @@ void SRPWindow::onWidgetPaint(Berkelium::Window *win, Berkelium::Widget *wid, co
 			if (sourceBufferRect.width() == psWidget->nWidth && sourceBufferRect.height() == psWidget->nWidth)
 			{
 				// did not suspect a full update but got it anyway, it might happen and is ok
-				BufferCopyFull(psWidget->pImageBuffer, psWidget->nWidth, psWidget->nHeight, sourceBuffer, sourceBufferRect);
-				psWidget->pTextureBuffer->CopyDataFrom(0, TextureBuffer::R8G8B8A8, psWidget->pImageBuffer);
+				uint8 *pImageBuffer = psWidget->cImage.GetBuffer()->GetData();
+				BufferCopyFull(pImageBuffer, psWidget->nWidth, psWidget->nHeight, sourceBuffer, sourceBufferRect);
+				psWidget->pTextureBuffer->CopyDataFrom(0, TextureBuffer::R8G8B8A8, pImageBuffer);
 			}
 			else
 			{
 				if (dx != 0 || dy != 0)
 				{
 					// a scroll has taken place
-					BufferCopyScroll(psWidget->pImageBuffer, psWidget->nWidth, psWidget->nHeight, sourceBuffer, sourceBufferRect, numCopyRects, copyRects, dx, dy, scrollRect);
-					psWidget->pTextureBuffer->CopyDataFrom(0, TextureBuffer::R8G8B8A8, psWidget->pImageBuffer);
+					uint8 *pImageBuffer = psWidget->cImage.GetBuffer()->GetData();
+					BufferCopyScroll(pImageBuffer, psWidget->nWidth, psWidget->nHeight, sourceBuffer, sourceBufferRect, numCopyRects, copyRects, dx, dy, scrollRect);
+					psWidget->pTextureBuffer->CopyDataFrom(0, TextureBuffer::R8G8B8A8, pImageBuffer);
 				}
 				else
 				{
 					// normal partial updates
-					BufferCopyRects(psWidget->pImageBuffer, psWidget->nWidth, psWidget->nHeight, sourceBuffer, sourceBufferRect, numCopyRects, copyRects);
-					psWidget->pTextureBuffer->CopyDataFrom(0, TextureBuffer::R8G8B8A8, psWidget->pImageBuffer);
+					uint8 *pImageBuffer = psWidget->cImage.GetBuffer()->GetData();
+					BufferCopyRects(pImageBuffer, psWidget->nWidth, psWidget->nHeight, sourceBuffer, sourceBufferRect, numCopyRects, copyRects);
+					psWidget->pTextureBuffer->CopyDataFrom(0, TextureBuffer::R8G8B8A8, pImageBuffer);
 				}
 			}
 		}
@@ -1181,10 +1205,13 @@ void SRPWindow::onWidgetResize(Berkelium::Window *win, Berkelium::Widget *wid, i
 
 		// recreate the image
 		psWidget->cImage = Image::CreateImage(DataByte, ColorRGBA, Vector3i(psWidget->nWidth, psWidget->nHeight, 1));
+
 		// recreate the texture buffer
+		if (nullptr != psWidget->pTextureBuffer)
+		{
+			delete psWidget->pTextureBuffer;
+		}
 		psWidget->pTextureBuffer = reinterpret_cast<TextureBuffer*>(m_pCurrentRenderer->CreateTextureBuffer2D(psWidget->cImage, TextureBuffer::Unknown, 0));
-		// recreate the image buffer
-		psWidget->pImageBuffer = psWidget->cImage.GetBuffer()->GetData();
 	}
 }
 

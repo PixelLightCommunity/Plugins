@@ -95,11 +95,10 @@ struct sCallBack
 
 struct sWidget
 {
-	PLRenderer::VertexBuffer *pVertexBuffer;
-	PLRenderer::ProgramWrapper *pProgramWrapper;
-	PLRenderer::TextureBuffer *pTextureBuffer;
+	PLRenderer::VertexBuffer *pVertexBuffer;		/**< Free the resource if you no longer need it */
+	PLRenderer::ProgramWrapper *pProgramWrapper;	/**< Shared, points to SRPWindow::m_pProgramWrapper, do not free the memory */
+	PLRenderer::TextureBuffer *pTextureBuffer;		/**< Free the resource if you no longer need it */
 	PLGraphics::Image cImage;
-	PLCore::uint8 *pImageBuffer;
 	int nWidth;
 	int nHeight;
 	int nXPos;
@@ -184,7 +183,7 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		virtual void onWidgetResize(Berkelium::Window *win, Berkelium::Widget *wid, int newWidth, int newHeight);
 
 		PLRenderer::VertexBuffer *CreateVertexBuffer(const PLMath::Vector2 &vPosition, const PLMath::Vector2 &vImageSize);
-		PLRenderer::ProgramWrapper *CreateProgramWrapper();
+		PLRenderer::ProgramWrapper *CreateProgramWrapper();	// Don't free the returned instance, pointer stored inside SRPWindow::m_pProgramWrapper
 		bool UpdateVertexBuffer(PLRenderer::VertexBuffer *pVertexBuffer, const PLMath::Vector2 &vPosition, const PLMath::Vector2 &vImageSize);
 		void DrawWindow();
 		void BufferCopyFull(PLCore::uint8 *pImageBuffer, int &nWidth, int &nHeight, const unsigned char *sourceBuffer, const Berkelium::Rect &sourceBufferRect);
