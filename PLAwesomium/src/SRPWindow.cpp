@@ -32,6 +32,8 @@ SRPWindows::SRPWindows(const String &sName) :
 	m_pCurrentSceneRenderer(nullptr),
 	m_pCurrentRenderer(nullptr),
 	m_pVertexBuffer(nullptr),
+	m_pVertexShader(nullptr),
+	m_pFragmentShader(nullptr),
 	m_pProgramWrapper(nullptr),
 	m_pTextureBuffer(nullptr),
 	m_cImage(),
@@ -56,6 +58,14 @@ SRPWindows::~SRPWindows()
 	if (nullptr != m_pProgramWrapper)
 	{
 		delete m_pProgramWrapper;
+	}
+	if (nullptr != m_pFragmentShader)
+	{
+		delete m_pFragmentShader;
+	}
+	if (nullptr != m_pVertexShader)
+	{
+		delete m_pVertexShader;
 	}
 	if (nullptr != m_pTextureBuffer)
 	{
@@ -130,11 +140,11 @@ ProgramWrapper *SRPWindows::CreateProgramWrapper()
 	}
 
 	// create the vertex and fragment shader
-	VertexShader *pVertexShader = m_pCurrentRenderer->GetShaderLanguage(m_pCurrentRenderer->GetDefaultShaderLanguage())->CreateVertexShader(sVertexShaderSourceCode, "arbvp1");
-	FragmentShader *pFragmentShader = m_pCurrentRenderer->GetShaderLanguage(m_pCurrentRenderer->GetDefaultShaderLanguage())->CreateFragmentShader(sFragmentShaderSourceCode, "arbfp1");
+	m_pVertexShader = m_pCurrentRenderer->GetShaderLanguage(m_pCurrentRenderer->GetDefaultShaderLanguage())->CreateVertexShader(sVertexShaderSourceCode, "arbvp1");
+	m_pFragmentShader = m_pCurrentRenderer->GetShaderLanguage(m_pCurrentRenderer->GetDefaultShaderLanguage())->CreateFragmentShader(sFragmentShaderSourceCode, "arbfp1");
 
 	// create the program wrapper
-	ProgramWrapper *pProgram = static_cast<ProgramWrapper*>(m_pCurrentRenderer->GetShaderLanguage(m_pCurrentRenderer->GetDefaultShaderLanguage())->CreateProgram(pVertexShader, pFragmentShader));
+	ProgramWrapper *pProgram = static_cast<ProgramWrapper*>(m_pCurrentRenderer->GetShaderLanguage(m_pCurrentRenderer->GetDefaultShaderLanguage())->CreateProgram(m_pVertexShader, m_pFragmentShader));
 
 	if (pProgram)
 	{

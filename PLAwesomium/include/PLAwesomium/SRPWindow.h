@@ -40,6 +40,16 @@
 
 
 //[-------------------------------------------------------]
+//[ Forward declarations                                  ]
+//[-------------------------------------------------------]
+namespace PLRenderer
+{
+	class VertexShader;
+	class FragmentShader;
+}
+
+
+//[-------------------------------------------------------]
 //[ Namespace                                             ]
 //[-------------------------------------------------------]
 namespace PLAwesomium {
@@ -175,6 +185,8 @@ class SRPWindows : public PLScene::SceneRendererPass,
 		PLScene::SceneRenderer *m_pCurrentSceneRenderer;
 		PLRenderer::Renderer *m_pCurrentRenderer;
 		PLRenderer::VertexBuffer *m_pVertexBuffer;
+		PLRenderer::VertexShader *m_pVertexShader;
+		PLRenderer::FragmentShader *m_pFragmentShader;
 		PLRenderer::ProgramWrapper *m_pProgramWrapper;
 		PLRenderer::TextureBuffer *m_pTextureBuffer;
 		PLGraphics::Image m_cImage;
