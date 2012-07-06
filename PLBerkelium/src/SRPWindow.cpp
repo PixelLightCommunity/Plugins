@@ -1008,13 +1008,17 @@ sCallBack *SRPWindow::GetCallBack(const String &sKey) const
 void SRPWindow::ResizeWindow(const int &nWidth, const int &nHeight)
 {
 	/*
-	possible change
+	needed change
 	- let (re)sizing be handled by the program uniform, see http://dev.pixellight.org/forum/viewtopic.php?f=6&t=503
 	*/
 
-	m_bIgnoreBufferUpdate = true; // still not optimal
+	//todo: [06-07-2012 Icefire] buffer overflows on resize happen to often to accept the current method as is
 
-	m_bReadyToDraw = false; // still not optimal
+	m_bIgnoreBufferUpdate = true;
+
+	m_psWindowsData->bNeedsFullUpdate = true;
+
+	m_bReadyToDraw = false;
 
 	m_psWindowsData->nFrameWidth = nWidth;
 	m_psWindowsData->nFrameHeight = nHeight;
@@ -1024,13 +1028,11 @@ void SRPWindow::ResizeWindow(const int &nWidth, const int &nHeight)
 
 	UpdateVertexBuffer(m_pVertexBuffer, Vector2(float(m_psWindowsData->nXPos), float(m_psWindowsData->nYPos)), Vector2(float(m_psWindowsData->nFrameWidth), float(m_psWindowsData->nFrameHeight)));
 
-	m_bReadyToDraw = true; // still not optimal
-
 	GetBerkeliumWindow()->resize(m_psWindowsData->nFrameWidth, m_psWindowsData->nFrameHeight);
 
-	m_bIgnoreBufferUpdate = false; // still not optimal
+	m_bReadyToDraw = true;
 
-	m_psWindowsData->bNeedsFullUpdate = true; // still not optimal
+	m_bIgnoreBufferUpdate = false;
 }
 
 

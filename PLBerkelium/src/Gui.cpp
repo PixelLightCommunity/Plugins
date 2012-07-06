@@ -1086,6 +1086,9 @@ void Gui::DebugNamesOfWindows()
 
 void Gui::ResizeWindowHandler()
 {
+	//todo: [06-07-2012 Icefire] this resizing handler works for now, however the way we resize the buffer now is still not acceptable.
+	//							 also keep in mind that this current approach thinks the resize is triggered from the bottom right corner of the windows.
+
 	if (m_pResizeWindow)
 	{
 		if (m_bMouseLeftDown)
@@ -1102,33 +1105,48 @@ void Gui::ResizeWindowHandler()
 					m_vLockMousePos = m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos);
 				}
 
-				if (m_vLockMousePos == m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos))
+				if (m_vLockMousePos.x == (m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos)).x &&
+					m_vLockMousePos.y == (m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos)).y)
 				{
-					// locked mouse position has not changed
+					// locked mouse has not moved so we do nothing
 				}
-				else if (m_vLockMousePos < m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos))
+				else if (m_vLockMousePos.x <= m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos).x &&
+					m_vLockMousePos.y <= m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos).y)
 				{
-					DebugToConsole("the window should grow\n");
-					// we get the new size
-					Vector2i vNewSize = m_pResizeWindow->GetSize() + (m_vLockMousePos + m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos));
-
-					// we resize the window
-					m_pResizeWindow->ResizeWindow(vNewSize.x, vNewSize.y);
-
-					// we should reset the locked mouse position since the window has been resized
-					m_vLockMousePos = Vector2i::Zero;
-				}
-				else if (m_vLockMousePos > m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos))
-				{
-					DebugToConsole("the window should shrink\n");
-					// we get the new size
+					// we should make the window bigger
 					Vector2i vNewSize = m_pResizeWindow->GetSize() - (m_vLockMousePos - m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos));
-
-					// we resize the window
-					m_pResizeWindow->ResizeWindow(vNewSize.x, vNewSize.y);
-
-					// we should reset the locked mouse position since the window has been resized
-					m_vLockMousePos = Vector2i::Zero;
+					// check if the new size difference is bigger than 2px in any direction so to not call to many resize updates
+					if ((vNewSize - m_pResizeWindow->GetSize()).x > 2 || (vNewSize - m_pResizeWindow->GetSize()).y > 2)
+					{
+						// check if new window size is at least 4 x 4 pixels, if you need smaller windows than that you should switch your field to nanotechnology
+						if (vNewSize.x >= 4 && vNewSize.y >= 4)
+						{
+							// we resize the window
+							m_pResizeWindow->ResizeWindow(vNewSize.x, vNewSize.y);
+							// we should reset the locked mouse position since the window has been resized
+							m_vLockMousePos = Vector2i::Zero;
+						}
+					}
+				}
+				else
+				{
+					// we should make the window smaller
+					Vector2i vNewSize = m_pResizeWindow->GetSize() - (m_vLockMousePos - m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos));
+					// check if the new size difference is bigger than 2px in any direction so to not call to many resize updates
+					if ((m_pResizeWindow->GetSize() - vNewSize).x > 2 ||
+						(m_pResizeWindow->GetSize() - vNewSize).y > 2 ||
+						(m_pResizeWindow->GetSize() - vNewSize).x < -2 ||
+						(m_pResizeWindow->GetSize() - vNewSize).y < -2)
+					{
+						// check if new window size is at least 4 x 4 pixels, if you need smaller windows than that you should switch your field to nanotechnology
+						if (vNewSize.x >= 4 && vNewSize.y >= 4)
+						{
+							// we resize the window
+							m_pResizeWindow->ResizeWindow(vNewSize.x, vNewSize.y);
+							// we should reset the locked mouse position since the window has been resized
+							m_vLockMousePos = Vector2i::Zero;
+						}
+					}
 				}
 				
 				// after its all done we reset the mouse moved status so that we do not keep doing this repeatedly
