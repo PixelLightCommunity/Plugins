@@ -1,3 +1,16 @@
+>> 08.07.2012
+[IJH]
+- Added documentation to Gui methods
+
+
+
+>> 07.07.2012
+[IJH]
+- Changed names on variables to be consistent with PixelLight, see http://pixellight.sourceforge.net/docs/PixelLightConventions.pdf (2.18 Prefix)
+- Added documentation to berkelium callback methods
+
+
+
 >> 05.07.2012
 [IJH]
  - Warnings that i am not sure about

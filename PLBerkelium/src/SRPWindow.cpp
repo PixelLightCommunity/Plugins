@@ -42,10 +42,10 @@ SRPWindow::SRPWindow(const String &sName) :
 	m_pBerkeliumContext(nullptr),
 	m_pToolTip(nullptr),
 	m_bToolTipEnabled(false),
-	m_pDefaultCallBacks(new HashMap<String, sCallBack*>),
-	m_pCallBackFunctions(new HashMap<PLCore::String, PLCore::DynFuncPtr>),
+	m_pmapDefaultCallBacks(new HashMap<String, sCallBack*>),
+	m_pmapCallBackFunctions(new HashMap<PLCore::String, PLCore::DynFuncPtr>),
 	m_bIgnoreBufferUpdate(false),
-	m_pWidgets(new HashMap<Berkelium::Widget*, sWidget*>)
+	m_pmapWidgets(new HashMap<Berkelium::Widget*, sWidget*>)
 {
 	// we need to create a berkelium context
 	// it might be wise to centralize the context back to the Gui class because each context is represented my a Berkelium.exe process on runtime
@@ -776,7 +776,7 @@ void SRPWindow::onJavascriptCallback(Berkelium::Window *win, void *replyMsg, Ber
 	//	Javascript has called a bound function on this Window.
 	//	Parameters:
 	//		win			Window instance that fired this event.
-	// 		replyMsg	If non-NULL, opaque reply identifier to be passed to synchronousScriptReturn.
+	// 		pReplyMsg	If non-NULL, opaque reply identifier to be passed to synchronousScriptReturn.
 	// 		url			Origin of the sending script.
 	// 		funcName	name of function to call.
 	// 		args		list of variants passed into function.
@@ -789,8 +789,8 @@ void SRPWindow::onJavascriptCallback(Berkelium::Window *win, void *replyMsg, Ber
 	pCallBack->pWindow = win;
 	pCallBack->sFunctionName = funcName.data();
 	pCallBack->nNumberOfParameters = numArgs;
-	pCallBack->origin = origin;
-	pCallBack->replyMsg = replyMsg;
+	pCallBack->OriginUrl = origin;
+	pCallBack->pReplyMsg = replyMsg;
 	pCallBack->pParameters = args;
 
 	String sParams = "";
@@ -833,7 +833,7 @@ void SRPWindow::onJavascriptCallback(Berkelium::Window *win, void *replyMsg, Ber
 	}
 
 	// create dynamic function pointer
-	DynFuncPtr pDynFuncPtr = m_pCallBackFunctions->Get(pCallBack->sFunctionName);
+	DynFuncPtr pDynFuncPtr = m_pmapCallBackFunctions->Get(pCallBack->sFunctionName);
 	if (pDynFuncPtr)
 	{
 		// check if there is a return type
@@ -863,7 +863,7 @@ void SRPWindow::onJavascriptCallback(Berkelium::Window *win, void *replyMsg, Ber
 		pCallBack->sFunctionName == RESIZEWINDOW)
 	{
 		// add the callback to the hashmap so that the Gui class can process it
-		m_pDefaultCallBacks->Add(pCallBack->sFunctionName, pCallBack);
+		m_pmapDefaultCallBacks->Add(pCallBack->sFunctionName, pCallBack);
 	}
 	else
 	{
@@ -872,7 +872,7 @@ void SRPWindow::onJavascriptCallback(Berkelium::Window *win, void *replyMsg, Ber
 		// i am not sure if you need to cleanup the children of a struct when you delete a struct
 		//todo: make sure this is proper and needed [05-juli-2012 Icefire]
 		delete pCallBack->pParameters;
-		delete pCallBack->replyMsg;
+		delete pCallBack->pReplyMsg;
 		delete pCallBack;
 	}
 }
@@ -989,19 +989,19 @@ void SRPWindow::SetToolTipEnabled(const bool &bEnabled)
 
 void SRPWindow::ClearCallBacks() const
 {
-	m_pDefaultCallBacks->Clear();
+	m_pmapDefaultCallBacks->Clear();
 }
 
 
 uint32 SRPWindow::GetNumberOfCallBacks() const
 {
-	return m_pDefaultCallBacks->GetNumOfElements();
+	return m_pmapDefaultCallBacks->GetNumOfElements();
 }
 
 
 sCallBack *SRPWindow::GetCallBack(const String &sKey) const
 {
-	return m_pDefaultCallBacks->Get(sKey);
+	return m_pmapDefaultCallBacks->Get(sKey);
 }
 
 
@@ -1044,7 +1044,7 @@ bool SRPWindow::AddCallBackFunction(const DynFuncPtr pDynFunc, String sJSFunctio
 		const FuncDesc *pFuncDesc = pDynFunc->GetDesc();
 		if (pFuncDesc)
 		{
-			if (m_pCallBackFunctions->Get(pFuncDesc->GetName()) == NULL)
+			if (m_pmapCallBackFunctions->Get(pFuncDesc->GetName()) == NULL)
 			{
 				if (sJSFunctionName == "")
 				{
@@ -1055,7 +1055,7 @@ bool SRPWindow::AddCallBackFunction(const DynFuncPtr pDynFunc, String sJSFunctio
 				GetBerkeliumWindow()->addBindOnStartLoading(Berkelium::WideString::point_to(sJSFunctionName.GetUnicode()), Berkelium::Script::Variant::bindFunction(Berkelium::WideString::point_to(pFuncDesc->GetName().GetUnicode()), bHasReturn));
 
 				// we add the function pointer to the hashmap
-				m_pCallBackFunctions->Add(pFuncDesc->GetName(), pDynFunc);
+				m_pmapCallBackFunctions->Add(pFuncDesc->GetName(), pDynFunc);
 				return true;
 			}
 		}
@@ -1078,7 +1078,7 @@ void SRPWindow::onRunFileChooser(Berkelium::Window *win, int mode, Berkelium::Wi
 
 bool SRPWindow::RemoveCallBack(const String &sKey) const
 {
-	return m_pDefaultCallBacks->Remove(sKey);
+	return m_pmapDefaultCallBacks->Remove(sKey);
 }
 
 
@@ -1107,14 +1107,14 @@ void SRPWindow::onWidgetCreated(Berkelium::Window *win, Berkelium::Widget *newWi
 	psWidget->pVertexBuffer = CreateVertexBuffer(Vector2::Zero, Vector2::Zero);
 
 	// we add the widget to the hashmap
-	m_pWidgets->Add(newWidget, psWidget);
+	m_pmapWidgets->Add(newWidget, psWidget);
 }
 
 
 void SRPWindow::onWidgetDestroyed(Berkelium::Window *win, Berkelium::Widget *wid)
 {
 	// get the widget that got the destroy callback
-	sWidget *psWidget = m_pWidgets->Get(wid);
+	sWidget *psWidget = m_pmapWidgets->Get(wid);
 	if (psWidget)
 	{
 		// delete the resources used by this widget
@@ -1130,7 +1130,7 @@ void SRPWindow::onWidgetDestroyed(Berkelium::Window *win, Berkelium::Widget *wid
 		}
 
 		// remove it
-		m_pWidgets->Remove(wid);
+		m_pmapWidgets->Remove(wid);
 	}
 }
 
@@ -1138,7 +1138,7 @@ void SRPWindow::onWidgetDestroyed(Berkelium::Window *win, Berkelium::Widget *wid
 void SRPWindow::onWidgetMove(Berkelium::Window *win, Berkelium::Widget *wid, int newX, int newY)
 {
 	// get the widget that got the move callback
-	sWidget *psWidget = m_pWidgets->Get(wid);
+	sWidget *psWidget = m_pmapWidgets->Get(wid);
 	if (psWidget)
 	{
 		// set the new position data
@@ -1159,7 +1159,7 @@ void SRPWindow::onWidgetMove(Berkelium::Window *win, Berkelium::Widget *wid, int
 void SRPWindow::onWidgetPaint(Berkelium::Window *win, Berkelium::Widget *wid, const unsigned char *sourceBuffer, const Berkelium::Rect &sourceBufferRect, size_t numCopyRects, const Berkelium::Rect *copyRects, int dx, int dy, const Berkelium::Rect &scrollRect)
 {
 	// get the widget that got the paint callback
-	sWidget *psWidget = m_pWidgets->Get(wid);
+	sWidget *psWidget = m_pmapWidgets->Get(wid);
 	if (psWidget)
 	{
 		if (psWidget->bNeedsFullUpdate)
@@ -1204,7 +1204,7 @@ void SRPWindow::onWidgetPaint(Berkelium::Window *win, Berkelium::Widget *wid, co
 void SRPWindow::onWidgetResize(Berkelium::Window *win, Berkelium::Widget *wid, int newWidth, int newHeight)
 {
 	// get the widget that got the resize callback
-	sWidget *psWidget = m_pWidgets->Get(wid);
+	sWidget *psWidget = m_pmapWidgets->Get(wid);
 	if (psWidget)
 	{
 		// set the new size
@@ -1282,10 +1282,10 @@ void SRPWindow::DrawWidget(sWidget *psWidget)
 void SRPWindow::DrawWidgets()
 {
 	// check if there are widgets that need to be drawn
-	if (m_pWidgets->GetNumOfElements() > 0)
+	if (m_pmapWidgets->GetNumOfElements() > 0)
 	{
 		// get the iterator for the widgets
-		Iterator<sWidget*> cIterator = m_pWidgets->GetIterator();
+		Iterator<sWidget*> cIterator = m_pmapWidgets->GetIterator();
 		// loop trough the widgets
 		while (cIterator.HasNext())
 		{
@@ -1298,7 +1298,7 @@ void SRPWindow::DrawWidgets()
 
 HashMap<Berkelium::Widget*, sWidget*> *SRPWindow::GetWidgets() const
 {
-	return m_pWidgets;
+	return m_pmapWidgets;
 }
 
 
