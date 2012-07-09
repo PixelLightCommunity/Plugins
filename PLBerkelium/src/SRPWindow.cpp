@@ -58,7 +58,7 @@ SRPWindow::SRPWindow(const String &sName) :
 SRPWindow::~SRPWindow()
 {
 	// we should clear the callbacks
-	ClearCallBacks();
+	RemoveCallBacks();
 	// we destroy the used berkelium window
 	DestroyBerkeliumWindow();
 	// destroy the context
@@ -76,12 +76,10 @@ SRPWindow::~SRPWindow()
 	}
 	if (nullptr != m_pFragmentShader)
 	{
-		//todo: warning C4150: deletion of pointer to incomplete type 'PLRenderer::FragmentShader'; no destructor called [05-juli-2012 Icefire]
 		delete m_pFragmentShader;
 	}
 	if (nullptr != m_pVertexShader)
 	{
-		//todo: warning C4150: deletion of pointer to incomplete type 'PLRenderer::VertexShader'; no destructor called [05-juli-2012 Icefire]
 		delete m_pVertexShader;
 	}
 	if (nullptr != m_pTextureBuffer)
@@ -870,7 +868,6 @@ void SRPWindow::onJavascriptCallback(Berkelium::Window *win, void *replyMsg, Ber
 		// we do not need the callback struct and its data anymore
 
 		// i am not sure if you need to cleanup the children of a struct when you delete a struct
-		//todo: make sure this is proper and needed [05-juli-2012 Icefire]
 		delete pCallBack->pParameters;
 		delete pCallBack->pReplyMsg;
 		delete pCallBack;
@@ -987,8 +984,20 @@ void SRPWindow::SetToolTipEnabled(const bool &bEnabled)
 }
 
 
-void SRPWindow::ClearCallBacks() const
+void SRPWindow::RemoveCallBacks() const
 {
+	// get the iterator for all the callbacks created
+	Iterator<sCallBack*> cIterator = m_pmapDefaultCallBacks->GetIterator();
+	// loop trough the callbacks
+	while (cIterator.HasNext())
+	{
+		sCallBack *psCallBack = cIterator.Next();
+		// cleanup
+		// i am not sure if you need to cleanup the children of a struct and the struct itself when you remove the struct from a hashmap
+		delete psCallBack->pParameters;
+		delete psCallBack->pReplyMsg;
+		delete psCallBack;
+	}
 	m_pmapDefaultCallBacks->Clear();
 }
 
@@ -1012,7 +1021,7 @@ void SRPWindow::ResizeWindow(const int &nWidth, const int &nHeight)
 	- let (re)sizing be handled by the program uniform, see http://dev.pixellight.org/forum/viewtopic.php?f=6&t=503
 	*/
 
-	//todo: [06-07-2012 Icefire] buffer overflows on resize happen to often to accept the current method as is
+	//fix: [06-07-2012 Icefire] buffer overflows on resize happen to often to accept the current method as is
 
 	m_bIgnoreBufferUpdate = true;
 
@@ -1078,7 +1087,19 @@ void SRPWindow::onRunFileChooser(Berkelium::Window *win, int mode, Berkelium::Wi
 
 bool SRPWindow::RemoveCallBack(const String &sKey) const
 {
-	return m_pmapDefaultCallBacks->Remove(sKey);
+	if (m_pmapDefaultCallBacks->Get(sKey) == NULL)
+	{
+		return false;
+	}
+	else
+	{
+		// i am not sure if you need to cleanup the children of a struct and the struct itself when you remove the struct from a hashmap
+		delete m_pmapDefaultCallBacks->Get(sKey)->pParameters;
+		delete m_pmapDefaultCallBacks->Get(sKey)->pReplyMsg;
+		delete m_pmapDefaultCallBacks->Get(sKey);
+		// we remove the callback
+		return m_pmapDefaultCallBacks->Remove(sKey);
+	}
 }
 
 

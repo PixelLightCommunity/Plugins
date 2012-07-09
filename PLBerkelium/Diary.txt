@@ -1,3 +1,11 @@
+>> 09.07.2012
+[IJH]
+- Added documentation to SRPWindow methods
+- Cleanup for some destruction methods
+- trivial renaming
+
+
+
 >> 08.07.2012
 [IJH]
 - Added documentation to Gui methods

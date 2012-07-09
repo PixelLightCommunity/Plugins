@@ -2,6 +2,8 @@
 #define __PLBERKELIUM_GUI_H__
 #pragma once
 
+// Gui verified [09-juli-2012 at 23:35 by Icefire]
+
 
 //[-------------------------------------------------------]
 //[ Includes                                              ]
@@ -85,7 +87,6 @@ class Gui : public PLCore::Object {
 		*  @brief
 		*    Returns whether or not berkelium is initialized
 		*
-		*
 		*  @return
 		*    'true' if berkelium is initialized, else 'false'
 		*/
@@ -154,7 +155,6 @@ class Gui : public PLCore::Object {
 		*  @remarks
 		*    Should you so desire you can use this to get other information from the windows as well as iterate trough them.
 		*
-		*
 		*  @return
 		*    pointer to HashMap holding the windows (do not destroy the returned instance!)
 		*/
@@ -166,10 +166,6 @@ class Gui : public PLCore::Object {
 		*
 		*  @note
 		*    You dont really need to call this, because it would be called by the SceneContext OnUpdate event if ConnectEventUpdate() is set.
-		*
-		*
-		*  @return
-		*    void
 		*/
 		PLBERKELIUM_API void UpdateBerkelium();
 		
@@ -182,11 +178,6 @@ class Gui : public PLCore::Object {
 		*
 		*  @note
 		*    You must destroy berkelium yourself.
-		*    //todo: [07-07-2012 Icefire] verify this.
-		*
-		*
-		*  @return
-		*    void
 		*/
 		PLBERKELIUM_API void DestroyInstance() const;
 		
@@ -202,9 +193,6 @@ class Gui : public PLCore::Object {
 		*
 		*  @param[in] PLRenderer::Renderer * pRenderer
 		*  @param[in] PLScene::SceneRenderer * pSceneRenderer
-		*
-		*  @return
-		*    void
 		*/
 		PLBERKELIUM_API void SetRenderers(PLRenderer::Renderer *pRenderer, PLScene::SceneRenderer *pSceneRenderer);
 		
@@ -240,7 +228,6 @@ class Gui : public PLCore::Object {
 		*  @brief
 		*    Returns the mouse pointer
 		*
-		*
 		*  @return
 		*    pointer to mouse pointer (can be a null pointer, do not destroy the returned instance!)
 		*/
@@ -254,16 +241,12 @@ class Gui : public PLCore::Object {
 		*    Because there can be only one focused window this will unfocus the previously focused window.
 		*
 		*  @param[in] SRPWindow * pSRPWindow
-		*
-		*  @return
-		*    void
 		*/
 		PLBERKELIUM_API void FocusWindow(SRPWindow *pSRPWindow);
 		
 		/**
 		*  @brief
 		*    Returns the focused window
-		*
 		*
 		*  @return
 		*    pointer to focused window (can be a null pointer, do not destroy the returned instance!)
@@ -326,10 +309,6 @@ class Gui : public PLCore::Object {
 		*
 		*  @note
 		*    This will unfocus every window created.
-		*
-		*
-		*  @return
-		*    void
 		*/
 		PLBERKELIUM_API void UnFocusAllWindows();
 		
@@ -354,10 +333,6 @@ class Gui : public PLCore::Object {
 		*
 		*  @note
 		*    This will be deprecated when no longer needed.
-		*
-		*
-		*  @return
-		*    void
 		*/
 		PLBERKELIUM_API void DebugNamesOfWindows();
 
@@ -372,10 +347,6 @@ class Gui : public PLCore::Object {
 		*
 		*  @remarks
 		*    Iterates trough created windows and destroys them.
-		*
-		*
-		*  @return
-		*    void
 		*/
 		void DestroyWindows();
 		
@@ -385,30 +356,18 @@ class Gui : public PLCore::Object {
 		*
 		*  @remarks
 		*    This creates and initializes berkelium and creates a dummy window.
-		*
-		*
-		*  @return
-		*    void
 		*/
 		void Initialize();
 		
 		/**
 		*  @brief
 		*    Stops running berkelium
-		*
-		*
-		*  @return
-		*    void
 		*/
 		void StopBerkelium() const;
 		
 		/**
 		*  @brief
 		*    Adds a dummy window and set its data
-		*
-		*
-		*  @return
-		*    void
 		*/
 		void AddDummyWindow();
 		
@@ -418,7 +377,6 @@ class Gui : public PLCore::Object {
 		*
 		*  @remarks
 		*    This iterates trough all windows and returns a list of those that allow mouse events.
-		*
 		*
 		*  @return
 		*    Pointer to the list created (can be a null pointer, destroy the returned instance when you no longer need it)
@@ -443,20 +401,12 @@ class Gui : public PLCore::Object {
 		/**
 		*  @brief
 		*    Creates the mouse pointer
-		*
-		*
-		*  @return
-		*    void
 		*/
 		void CreateMousePointer();
 		
 		/**
 		*  @brief
 		*    Destroys the mouse pointer
-		*
-		*
-		*  @return
-		*    void
 		*/
 		void DestroyMousePointer() const;
 		
@@ -471,10 +421,6 @@ class Gui : public PLCore::Object {
 		*    -> DefaultCallBackHandler()
 		*    -> DragWindowHandler()
 		*    -> ResizeWindowHandler()
-		*
-		*
-		*  @return
-		*    void
 		*/
 		void OnUpdate();
 		
@@ -483,9 +429,6 @@ class Gui : public PLCore::Object {
 		*    Processes all mouse events
 		*
 		*  @param[in] PLInput::Control & cControl
-		*
-		*  @return
-		*    void
 		*/
 		void MouseEvents(PLInput::Control &cControl);
 		
@@ -509,9 +452,6 @@ class Gui : public PLCore::Object {
 		*
 		*  @param[in] const SRPWindow * pSRPWindow
 		*  @param[in] const PLMath::Vector2i & vMousePos
-		*
-		*  @return
-		*    void
 		*/
 		void MouseMove(const SRPWindow *pSRPWindow, const PLMath::Vector2i &vMousePos) const;
 		
@@ -521,9 +461,6 @@ class Gui : public PLCore::Object {
 		*
 		*  @param[in] SRPWindow * pSRPWindow
 		*  @param[in] PLInput::Control & cControl
-		*
-		*  @return
-		*    void
 		*/
 		void MouseClicks(SRPWindow *pSRPWindow, PLInput::Control &cControl);
 		
@@ -533,9 +470,6 @@ class Gui : public PLCore::Object {
 		*
 		*  @param[in] SRPWindow * pSRPWindow
 		*  @param[in] PLInput::Control & cControl
-		*
-		*  @return
-		*    void
 		*/
 		void MouseScrolls(SRPWindow *pSRPWindow, PLInput::Control &cControl);
 		
@@ -547,9 +481,6 @@ class Gui : public PLCore::Object {
 		*    This only happens if you have connected the controller, see ConnectController().
 		*
 		*  @param[in] PLInput::Control & cControl
-		*
-		*  @return
-		*    void
 		*/
 		void OnControl(PLInput::Control &cControl);
 		
@@ -560,10 +491,6 @@ class Gui : public PLCore::Object {
 		*  @remarks
 		*    This iterates trough the windows and checks if any of them have callbacks.
 		*    If the callbacks are predefined as default then a correspondent action is taken.
-		*
-		*
-		*  @return
-		*    void
 		*/
 		void DefaultCallBackHandler();
 		
@@ -572,9 +499,6 @@ class Gui : public PLCore::Object {
 		*    Processes all keyboard events
 		*
 		*  @param[in] PLInput::Control & cControl
-		*
-		*  @return
-		*    void
 		*/
 		void KeyboardEvents(PLInput::Control &cControl);
 		
@@ -585,20 +509,12 @@ class Gui : public PLCore::Object {
 		*  @remarks
 		*    If the dragging window is defined and certain parameter are met.
 		*    The window will be dragged on screen relative to the mouse movement.
-		*
-		*
-		*  @return
-		*    void
 		*/
 		void DragWindowHandler();
 		
 		/**
 		*  @brief
 		*    Handles all keyboard related processes on update
-		*
-		*
-		*  @return
-		*    void
 		*/
 		void KeyboardHandler();
 		
@@ -609,9 +525,6 @@ class Gui : public PLCore::Object {
 		*  @param[in] const PLCore::String & sName
 		*  @param[in] const PLCore::String & sKey
 		*  @param[in] sButton * psButton
-		*
-		*  @return
-		*    void
 		*/
 		void AddTextKey(const PLCore::String &sName, const PLCore::String &sKey, sButton *psButton);
 		
@@ -622,9 +535,6 @@ class Gui : public PLCore::Object {
 		*  @param[in] const PLCore::String & sName
 		*  @param[in] const char & nKey
 		*  @param[in] sButton * psButton
-		*
-		*  @return
-		*    void
 		*/
 		void AddKey(const PLCore::String &sName, const char &nKey, sButton *psButton);
 		
@@ -638,10 +548,6 @@ class Gui : public PLCore::Object {
 		*
 		*  @note
 		*    This method is somewhat experimental and is subject to change
-		*
-		*
-		*  @return
-		*    void
 		*/
 		void ResizeWindowHandler();
 

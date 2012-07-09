@@ -2,6 +2,8 @@
 #define __PLBERKELIUM_SRPWINDOWS_H__
 #pragma once
 
+// SRPWindow verified [10-juli-2012 at 23:47 by Icefire]
+
 
 //[-------------------------------------------------------]
 //[ Includes                                              ]
@@ -123,34 +125,270 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 	public:
 		PLBERKELIUM_API SRPWindow(const PLCore::String &sName);
 		PLBERKELIUM_API virtual ~SRPWindow();
-
-		PLBERKELIUM_API void SetRenderer(PLRenderer::Renderer *pRenderer);
+		
+		/**
+		*  @brief
+		*    Initializes window and creates needed components
+		*
+		*  @param[in] PLRenderer::Renderer * pRenderer
+		*  @param[in] const PLMath::Vector2 & vPosition
+		*  @param[in] const PLMath::Vector2 & vImageSize
+		*
+		*  @return
+		*    'true' if window initialization is successful, else 'false'
+		*/
 		PLBERKELIUM_API bool Initialize(PLRenderer::Renderer *pRenderer, const PLMath::Vector2 &vPosition, const PLMath::Vector2 &vImageSize);
+		
+		/**
+		*  @brief
+		*    Destroys this window instance
+		*
+		*  @remarks
+		*    This will also destroy all data and components created by this window.
+		*/
 		PLBERKELIUM_API void DestroyInstance() const;
+		
+		/**
+		*  @brief
+		*    Returns the berkelium window instance
+		*
+		*  @remarks
+		*    You can use this to call berkelium specific methods.
+		*
+		*  @return
+		*    pointer to berkelium window (do not destroy the returned instance!)
+		*/
 		PLBERKELIUM_API Berkelium::Window *GetBerkeliumWindow() const;
+		
+		/**
+		*  @brief
+		*    Creates and sets the berkelium window instance
+		*
+		*  @remarks
+		*    If the berkelium window is already set this will not do anything.
+		*
+		*  @return
+		*    void
+		*/
 		PLBERKELIUM_API void CreateBerkeliumWindow();
+		
+		/**
+		*  @brief
+		*    Returns the data of the window
+		*
+		*  @remarks
+		*    You can use this to get and set window data.
+		*
+		*  @return
+		*    pointer to window data (do not destroy the returned instance!)
+		*/
 		PLBERKELIUM_API sWindowsData *GetData() const;
+		
+		/**
+		*  @brief
+		*    Adds the SceneRenderPass for this window to the SceneRenderer
+		*
+		*  @param[in] PLScene::SceneRenderer * pSceneRenderer
+		*
+		*  @return
+		*    'true' if the SceneRenderPass was added, else 'false'
+		*/
 		PLBERKELIUM_API bool AddSceneRenderPass(PLScene::SceneRenderer *pSceneRenderer);
+		
+		/**
+		*  @brief
+		*    Removes the SceneRenderPass for this window from the SceneRenderer
+		*
+		*  @return
+		*    'true' if the SceneRenderPass was removed, else 'false'
+		*/
 		PLBERKELIUM_API bool RemoveSceneRenderPass();
+		
+		/**
+		*  @brief
+		*    Moves this window to front
+		*/
 		PLBERKELIUM_API void MoveToFront();
+		
+		/**
+		*  @brief
+		*    Returns the name of this window
+		*
+		*  @return
+		*    window name
+		*/
 		PLBERKELIUM_API PLCore::String GetName() const;
+		
+		/**
+		*  @brief
+		*    Destroys the berkelium window instance
+		*
+		*  @remarks
+		*    If the berkelium window has not been set this will not do anything.
+		*/
 		PLBERKELIUM_API void DestroyBerkeliumWindow();
+		
+		/**
+		*  @brief
+		*    Returns the position of this window
+		*
+		*  @return
+		*    window position
+		*/
 		PLBERKELIUM_API PLMath::Vector2i GetPosition() const;
+		
+		/**
+		*  @brief
+		*    Returns the size of this window
+		*
+		*  @return
+		*    window size
+		*/
 		PLBERKELIUM_API PLMath::Vector2i GetSize() const;
+		
+		/**
+		*  @brief
+		*    Returns the mouse positions relative to this window
+		*
+		*  @param[in] const PLMath::Vector2i & vMousePos
+		*
+		*  @return
+		*    mouse position relative to window
+		*/
 		PLBERKELIUM_API PLMath::Vector2i GetRelativeMousePosition(const PLMath::Vector2i &vMousePos) const;
+		
+		/**
+		*  @brief
+		*    Returns the SceneRenderPass index for this window
+		*
+		*  @return
+		*    SceneRenderPass index
+		*/
 		PLBERKELIUM_API int GetSceneRenderPassIndex();
+		
+		/**
+		*  @brief
+		*    Moves window to given position
+		*
+		*  @param[in] const int & nX
+		*  @param[in] const int & nY
+		*/
 		PLBERKELIUM_API void MoveWindow(const int &nX, const int &nY);
 		PLBERKELIUM_API void SetToolTip(const PLCore::String &sText);
 		PLBERKELIUM_API void SetToolTipEnabled(const bool &bEnabled);
-		PLBERKELIUM_API void ClearCallBacks() const;
+		
+		/**
+		*  @brief
+		*    Removes all javascript callbacks for this window
+		*
+		*  @remarks
+		*    This can be used to make sure default callbacks are not called parallel to one and other.
+		*/
+		PLBERKELIUM_API void RemoveCallBacks() const;
+		
+		/**
+		*  @brief
+		*    Returns the amount of javascript callbacks created by this window
+		*
+		*  @return
+		*    amount of callbacks
+		*/
 		PLBERKELIUM_API PLCore::uint32 GetNumberOfCallBacks() const;
+		
+		/**
+		*  @brief
+		*    Returns a javascript callback by key identifier
+		*
+		*  @param[in] const PLCore::String & sKey
+		*
+		*  @return
+		*    pointer to callback (do not destroy the returned instance!)
+		*/
 		PLBERKELIUM_API sCallBack *GetCallBack(const PLCore::String &sKey) const;
+		
+		/**
+		*  @brief
+		*    Removes a javascript callback by key identifier
+		*
+		*  @param[in] const PLCore::String & sKey
+		*
+		*  @return
+		*    'true' if the javascript callback was removed, else 'false'
+		*/
 		PLBERKELIUM_API bool RemoveCallBack(const PLCore::String &sKey) const;
+		
+		/**
+		*  @brief
+		*    Resizes window to given size
+		*
+		*  @note
+		*    Its not advisable to resize a window smaller than 4x4 pixels.
+		*
+		*  @param[in] const int & nWidth
+		*  @param[in] const int & nHeight
+		*/
 		PLBERKELIUM_API void ResizeWindow(const int &nWidth, const int &nHeight);
+		
+		/**
+		*  @brief
+		*    Adds and sets a Javascript callback method for this window
+		*
+		*  @remarks
+		*    You can add c++ methods that javascript can callback to.
+		*
+		*  @note
+		*    The method you want to callback to needs to be defined as a RTTI method.
+		*    If you do not define the second parameter (sJSFunctionName), the method name will be used instead.
+		*    Set the third parameter to true (bHasReturn) if you want to return anything but make sure the method returns a string, anything else is simply not supported.
+		*
+		*  @param[in] const PLCore::DynFuncPtr pDynFunc
+		*  @param[in] PLCore::String sJSFunctionName
+		*  @param[in] bool bHasReturn
+		*
+		*  @return
+		*    'true' if the method was added, else 'false'
+		*/
 		PLBERKELIUM_API bool AddCallBackFunction(const PLCore::DynFuncPtr pDynFunc, PLCore::String sJSFunctionName = "",  bool bHasReturn = false);
+		
+		/**
+		*  @brief
+		*    Returns the widgets
+		*
+		*  @return
+		*    pointer to hashmap containing widgets (do not destroy the returned instance!)
+		*/
 		PLBERKELIUM_API PLCore::HashMap<Berkelium::Widget*, sWidget*> *GetWidgets() const;
+		
+		/**
+		*  @brief
+		*    Returns the mouse position relative to a widget
+		*
+		*  @param[in] const sWidget * psWidget
+		*  @param[in] const PLMath::Vector2i & vMousePos
+		*
+		*  @return
+		*    mouse position relative to widget
+		*/
 		PLBERKELIUM_API PLMath::Vector2i GetRelativeMousePositionWidget(const sWidget *psWidget, const PLMath::Vector2i &vMousePos) const;
+		
+		/**
+		*  @brief
+		*    Executes javascript on this window
+		*
+		*  @remarks
+		*    Its not needed to prefix the string with 'javascript:'.
+		*
+		*  @param[in] const PLCore::String & sJavascript
+		*/
 		PLBERKELIUM_API void ExecuteJavascript(const PLCore::String &sJavascript) const;
+		
+		/**
+		*  @brief
+		*    Returns whether or not the page of this window finished loading
+		*
+		*  @return
+		*    'true' if the page has loaded, else 'false'
+		*/
 		PLBERKELIUM_API bool IsLoaded() const;
 
 	protected:
@@ -164,6 +402,8 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 			The parameters in the following berkelium specific methods are named to be consistent with berkelium, see http://berkelium.org/class_berkelium_1_1_window_delegate.html
 			The description and notes are also copied straight from the berkelium documentation.
 		*/
+
+		#pragma region berkelium on event methods
 
 		/**
 		*  @brief
@@ -180,9 +420,6 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*  @param[in] int dx
 		*  @param[in] int dy
 		*  @param[in] const Berkelium::Rect & scrollRect
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onPaint(Berkelium::Window *win, const unsigned char *sourceBuffer, const Berkelium::Rect &sourceBufferRect, size_t numCopyRects, const Berkelium::Rect *copyRects, int dx, int dy, const Berkelium::Rect &scrollRect);
 
@@ -196,9 +433,6 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*  @param[in] Berkelium::Window * win
 		*  @param[in] Berkelium::Window * newWindow
 		*  @param[in] const Berkelium::Rect & initialRect
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onCreatedWindow(Berkelium::Window *win, Berkelium::Window *newWindow, const Berkelium::Rect &initialRect);
 
@@ -207,9 +441,6 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*    A page has loaded without error.
 		*
 		*  @param[in] Berkelium::Window * win
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onLoad(Berkelium::Window *win);
 
@@ -223,9 +454,6 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*
 		*  @param[in] Berkelium::Window * win
 		*  @param[in] bool isLoading
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onLoadingStateChanged(Berkelium::Window *win, bool isLoading);
 
@@ -237,9 +465,6 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*    No info is provided yet to the callback.
 		*
 		*  @param[in] Berkelium::Window * win
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onCrashedWorker(Berkelium::Window *win);
 		
@@ -252,9 +477,6 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*
 		*  @param[in] Berkelium::Window * win
 		*  @param[in] Berkelium::WideString pluginName
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onCrashedPlugin(Berkelium::Window *win, Berkelium::WideString pluginName);
 		
@@ -266,9 +488,6 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*  @param[in] Berkelium::WideString message
 		*  @param[in] Berkelium::WideString sourceId
 		*  @param[in] int line_no
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onConsoleMessage(Berkelium::Window *win, Berkelium::WideString message, Berkelium::WideString sourceId, int line_no);
 		
@@ -286,9 +505,6 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*  @param[in] int flags
 		*  @param[in] bool & success
 		*  @param[in] Berkelium::WideString & value
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onScriptAlert(Berkelium::Window *win, Berkelium::WideString message, Berkelium::WideString defaultValue, Berkelium::URLString url, int flags, bool &success, Berkelium::WideString &value);
 		
@@ -300,9 +516,6 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*    Applications can't currently do anything to handle this aside from recreating the Window object.
 		*
 		*  @param[in] Berkelium::Window * win
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onCrashed(Berkelium::Window *win);
 		
@@ -328,9 +541,6 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*    Reset the color and close dialogs.
 		*
 		*  @param[in] Berkelium::Window * win
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onResponsive(Berkelium::Window *win);
 		
@@ -343,9 +553,6 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*
 		*  @param[in] Berkelium::Window * win
 		*  @param[in] Berkelium::URLString newURL
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onAddressBarChanged(Berkelium::Window *win, Berkelium::URLString newURL);
 		
@@ -359,9 +566,6 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*  @param[in] Berkelium::WideString funcName
 		*  @param[in] Berkelium::Script::Variant * args
 		*  @param[in] size_t numArgs
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onJavascriptCallback(Berkelium::Window *win, void *replyMsg, Berkelium::URLString origin, Berkelium::WideString funcName, Berkelium::Script::Variant *args, size_t numArgs);
 		
@@ -374,9 +578,6 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*
 		*  @param[in] Berkelium::Window * win
 		*  @param[in] Berkelium::WideString text
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onTooltipChanged(Berkelium::Window *win, Berkelium::WideString text);
 		
@@ -388,9 +589,6 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*  @param[in] int mode
 		*  @param[in] Berkelium::WideString title
 		*  @param[in] Berkelium::FileString defaultFile
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onRunFileChooser(Berkelium::Window *win, int mode, Berkelium::WideString title, Berkelium::FileString defaultFile);
 		
@@ -404,9 +602,6 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*  @param[in] Berkelium::Window * win
 		*  @param[in] Berkelium::Widget * newWidget
 		*  @param[in] int zIndex
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onWidgetCreated(Berkelium::Window *win, Berkelium::Widget *newWidget, int zIndex);
 		
@@ -419,9 +614,6 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*
 		*  @param[in] Berkelium::Window * win
 		*  @param[in] Berkelium::Widget * wid
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onWidgetDestroyed(Berkelium::Window *win, Berkelium::Widget *wid);
 		
@@ -436,9 +628,6 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*  @param[in] Berkelium::Widget * wid
 		*  @param[in] int newX
 		*  @param[in] int newY
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onWidgetMove(Berkelium::Window *win, Berkelium::Widget *wid, int newX, int newY);
 		
@@ -458,9 +647,6 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*  @param[in] int dx
 		*  @param[in] int dy
 		*  @param[in] const Berkelium::Rect & scrollRect
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onWidgetPaint(Berkelium::Window *win, Berkelium::Widget *wid, const unsigned char *sourceBuffer, const Berkelium::Rect &sourceBufferRect, size_t numCopyRects, const Berkelium::Rect *copyRects, int dx, int dy, const Berkelium::Rect &scrollRect);
 		
@@ -472,28 +658,161 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*  @param[in] Berkelium::Widget * wid
 		*  @param[in] int newWidth
 		*  @param[in] int newHeight
-		*
-		*  @return
-		*    void
 		*/
 		virtual void onWidgetResize(Berkelium::Window *win, Berkelium::Widget *wid, int newWidth, int newHeight);
 
+		#pragma endregion berkelium on event methods
+
+		/**
+		*  @brief
+		*    Sets the renderer for future usage
+		*
+		*  @param[in] PLRenderer::Renderer * pRenderer
+		*/
+		void SetRenderer(PLRenderer::Renderer *pRenderer);
+		
+		/**
+		*  @brief
+		*    Creates a vertex buffer with given dimensions
+		*
+		*  @param[in] const PLMath::Vector2 & vPosition
+		*  @param[in] const PLMath::Vector2 & vImageSize
+		*
+		*  @return
+		*    pointer to created vertex buffer (can be a null pointer, destroy the returned instance when you no longer need it)
+		*/
 		PLRenderer::VertexBuffer *CreateVertexBuffer(const PLMath::Vector2 &vPosition, const PLMath::Vector2 &vImageSize);
-		PLRenderer::ProgramWrapper *CreateProgramWrapper();	// Don't free the returned instance, pointer stored inside SRPWindow::m_pProgramWrapper
+		
+		/**
+		*  @brief
+		*    Creates program wrapper
+		*
+		*  @return
+		*    pointer to created or already existing program wrapper (can be a null pointer, do not destroy the returned instance!)
+		*/
+		PLRenderer::ProgramWrapper *CreateProgramWrapper();
+		
+		/**
+		*  @brief
+		*    Updates given vertex buffer with given dimensions
+		*
+		*  @param[in] PLRenderer::VertexBuffer * pVertexBuffer
+		*  @param[in] const PLMath::Vector2 & vPosition
+		*  @param[in] const PLMath::Vector2 & vImageSize
+		*
+		*  @return
+		*    'true' if vertex buffer was updated, else 'false'
+		*/
 		bool UpdateVertexBuffer(PLRenderer::VertexBuffer *pVertexBuffer, const PLMath::Vector2 &vPosition, const PLMath::Vector2 &vImageSize);
+		
+		/**
+		*  @brief
+		*    Draws the window on screen
+		*/
 		void DrawWindow();
+		
+		/**
+		*  @brief
+		*    Copies the buffer data from berkelium to the holding image buffer for a full update
+		*
+		*  @param[in] PLCore::uint8 * pImageBuffer
+		*  @param[in] int & nWidth
+		*  @param[in] int & nHeight
+		*  @param[in] const unsigned char * sourceBuffer
+		*  @param[in] const Berkelium::Rect & sourceBufferRect
+		*/
 		void BufferCopyFull(PLCore::uint8 *pImageBuffer, int &nWidth, int &nHeight, const unsigned char *sourceBuffer, const Berkelium::Rect &sourceBufferRect);
+		
+		/**
+		*  @brief
+		*    Copies the buffer data from berkelium to the holding image buffer for a partial update
+		*
+		*  @param[in] PLCore::uint8 * pImageBuffer
+		*  @param[in] int & nWidth
+		*  @param[in] int & nHeight
+		*  @param[in] const unsigned char * sourceBuffer
+		*  @param[in] const Berkelium::Rect & sourceBufferRect
+		*  @param[in] size_t numCopyRects
+		*  @param[in] const Berkelium::Rect * copyRects
+		*/
 		void BufferCopyRects(PLCore::uint8 *pImageBuffer, int &nWidth, int &nHeight, const unsigned char *sourceBuffer, const Berkelium::Rect &sourceBufferRect, size_t numCopyRects, const Berkelium::Rect *copyRects);
+		
+		/**
+		*  @brief
+		*    Copies the buffer data from berkelium to the holding image buffer for a scrolled update
+		*
+		*  @param[in] PLCore::uint8 * pImageBuffer
+		*  @param[in] int & nWidth
+		*  @param[in] int & nHeight
+		*  @param[in] const unsigned char * sourceBuffer
+		*  @param[in] const Berkelium::Rect & sourceBufferRect
+		*  @param[in] size_t numCopyRects
+		*  @param[in] const Berkelium::Rect * copyRects
+		*  @param[in] int dx
+		*  @param[in] int dy
+		*  @param[in] const Berkelium::Rect & scrollRect
+		*/
 		void BufferCopyScroll(PLCore::uint8 *pImageBuffer, int &nWidth, int &nHeight, const unsigned char *sourceBuffer, const Berkelium::Rect &sourceBufferRect, size_t numCopyRects, const Berkelium::Rect *copyRects, int dx, int dy, const Berkelium::Rect &scrollRect);
+		
+		/**
+		*  @brief
+		*    Uploads the image buffer data to the GPU
+		*/
 		void BufferUploadToGPU();
+		
+		/**
+		*  @brief
+		*    Destroys this berkelium window and recreates it
+		*
+		*  @remarks
+		*    This is useful for when a window crashes and needs to be recovered.
+		*/
 		void RecreateWindow();
+		
+		/**
+		*  @brief
+		*    Creates a berkelium context needed for the creation of the berkelium window instance
+		*
+		*  @note
+		*    This will at some point be moved back to Gui // [10-07-2012 Icefire]
+		*/
 		void CreateBerkeliumContext();
+		
+		/**
+		*  @brief
+		*    Destroys the berkelium context
+		*
+		*  @note
+		*    This will at some point be moved back to Gui // [10-07-2012 Icefire]
+		*/
 		void DestroyContext();
+		
+		/**
+		*  @brief
+		*    Sets the default windows settings
+		*/
 		void SetWindowSettings();
 		void SetupToolTipWindow();
 		void DestroyToolTipWindow();
+		
+		/**
+		*  @brief
+		*    Sets the default callback functions for this window
+		*/
 		void SetDefaultCallBackFunctions();
+		
+		/**
+		*  @brief
+		*    Draws a widget by pointer
+		*
+		*  @param[in] sWidget * psWidget
+		*/
 		void DrawWidget(sWidget *psWidget);
+		
+		/**
+		*  @brief
+		*    Draws widgets on screen
+		*/
 		void DrawWidgets();
 
 		Berkelium::Window *m_pBerkeliumWindow;

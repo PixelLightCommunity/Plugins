@@ -425,7 +425,6 @@ List<SRPWindow*> *Gui::GetMouseEnabledWindows()
 	}
 	else
 	{
-		//question: [08-07-2012 Icefire] if we do not return the instance do we still need delete it?
 		// we do not need the list any more
 		delete plstMouseEnabledWindows;
 		// return nothing because the list is empty
@@ -512,7 +511,6 @@ List<SRPWindow*> *Gui::GetMouseOverWindows(const List<SRPWindow*> *plstEnabledWi
 	}
 	else
 	{
-		//question: [08-07-2012 Icefire] if we do not return the instance do we still need delete it?
 		// we do not need the list any more
 		delete plstMouseOverWindows;
 		// return nothing because the list is empty
@@ -798,13 +796,13 @@ void Gui::DefaultCallBackHandler()
 			{
 				m_pDragWindow = pSRPWindow;
 				// call back is processed so we clear them
-				pSRPWindow->ClearCallBacks();
+				pSRPWindow->RemoveCallBacks();
 			}
 			else if (pSRPWindow->GetCallBack(HIDEWINDOW))
 			{
 				pSRPWindow->GetData()->bIsVisable = false;
 				// call back is processed so we clear them
-				pSRPWindow->ClearCallBacks();
+				pSRPWindow->RemoveCallBacks();
 			}
 			else if (pSRPWindow->GetCallBack(CLOSEWINDOW))
 			{
@@ -815,7 +813,7 @@ void Gui::DefaultCallBackHandler()
 			{
 				m_pResizeWindow = pSRPWindow;
 				// call back is processed so we clear them
-				pSRPWindow->ClearCallBacks();
+				pSRPWindow->RemoveCallBacks();
 			}
 		}
 	}
@@ -1085,7 +1083,7 @@ void Gui::DebugNamesOfWindows()
 void Gui::ResizeWindowHandler()
 {
 	//todo: [06-07-2012 Icefire] this resizing handler works for now, however the way we resize the buffer now is still not acceptable.
-	//							 also keep in mind that this current approach thinks the resize is triggered from the bottom right corner of the windows.
+	// also keep in mind that this current approach thinks the resize is triggered from the bottom right corner of the windows.
 
 	if (m_pResizeWindow)
 	{
