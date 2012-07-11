@@ -1,6 +1,20 @@
 >> 11.07.2012
 [CO]
 - "SRPWindow::ResizeWindow()": With every resize call, a new texture was created without destroying the previous texture
+- To the "flicker problem when resizing". When debugging, it can be seen that the execution order is
+  1. "SRPWindow::ResizeWindow()": The texture content is now undefined
+  2. "SRPWindow::DrawWindow()": Draw the current frame using the texture with undefined content
+  3. "SRPWindow::BufferUploadToGPU()": The texture content is now defined
+  This means that for a single frame the content is not correct. Et voila, flickering. The order has to be:
+  1. "SRPWindow::ResizeWindow()": The texture content is now undefined
+  2. "SRPWindow::BufferUploadToGPU()": The texture content is now defined
+  3. "SRPWindow::DrawWindow()": Draw the current frame using the texture with undefined content
+  -> I can't work on program workflow topics in this project. In order to resolve the immediate "it flickers when resizing the
+     window"-issue I added a second texture. So, for one frame after resizing the previous content is used. This is not visible
+     to the user and the flickering is gone. This solution has to be considered to be a hack. It would be better to resolve the
+     real problem, meaning the execution order mentioned above.	 
+  -> The minor optimizations I described at http://dev.pixellight.org/forum/viewtopic.php?f=6&t=503 should be made after cleaning
+     up the execution order. It has nothing to do with the flicker issue and is just a more efficient resource usage.
 
 
 

@@ -824,6 +824,7 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		PLRenderer::FragmentShader *m_pFragmentShader;
 		PLRenderer::ProgramWrapper *m_pProgramWrapper;
 		PLRenderer::TextureBuffer *m_pTextureBuffer;
+		PLRenderer::TextureBuffer *m_pTextureBufferNew;
 		PLGraphics::Image m_cImage;
 		sWindowsData *m_psWindowsData;
 		bool m_bInitialized;

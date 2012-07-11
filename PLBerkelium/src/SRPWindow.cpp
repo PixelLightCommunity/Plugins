@@ -37,6 +37,7 @@ SRPWindow::SRPWindow(const String &sName) :
 	m_pFragmentShader(nullptr),
 	m_pProgramWrapper(nullptr),
 	m_pTextureBuffer(nullptr),
+	m_pTextureBufferNew(nullptr),
 	m_cImage(),
 	m_psWindowsData(new sWindowsData),
 	m_bInitialized(false),
@@ -87,6 +88,10 @@ SRPWindow::~SRPWindow()
 	if (nullptr != m_pTextureBuffer)
 	{
 		delete m_pTextureBuffer;
+	}
+	if (nullptr != m_pTextureBufferNew)
+	{
+		delete m_pTextureBufferNew;
 	}
 }
 
@@ -483,7 +488,19 @@ void SRPWindow::BufferUploadToGPU()
 	if (m_bInitialized)
 	{
 		// upload data to GPU
-		m_pTextureBuffer->CopyDataFrom(0, TextureBuffer::R8G8B8A8, m_cImage.GetBuffer()->GetData());
+		if (m_pTextureBufferNew)
+		{
+			m_pTextureBufferNew->CopyDataFrom(0, TextureBuffer::R8G8B8A8, m_cImage.GetBuffer()->GetData());
+			if (m_pTextureBuffer)
+				delete m_pTextureBuffer;
+			m_pTextureBuffer = m_pTextureBufferNew;
+			m_pTextureBufferNew = nullptr;
+			UpdateVertexBuffer(m_pVertexBuffer, Vector2(float(m_psWindowsData->nXPos), float(m_psWindowsData->nYPos)), Vector2(float(m_psWindowsData->nFrameWidth), float(m_psWindowsData->nFrameHeight)));
+		}
+		else
+		{
+			m_pTextureBuffer->CopyDataFrom(0, TextureBuffer::R8G8B8A8, m_cImage.GetBuffer()->GetData());
+		}
 		// set state for future usage
 		if (!m_bReadyToDraw) m_bReadyToDraw = true;
 	}
@@ -1035,13 +1052,11 @@ void SRPWindow::ResizeWindow(const int &nWidth, const int &nHeight)
 	m_psWindowsData->nFrameHeight = nHeight;
 
 	m_cImage = Image::CreateImage(DataByte, ColorRGBA, Vector3i(m_psWindowsData->nFrameWidth, m_psWindowsData->nFrameHeight, 1));
-	if (nullptr != m_pTextureBuffer)
+	if (nullptr != m_pTextureBufferNew)
 	{
-		delete m_pTextureBuffer;
+		delete m_pTextureBufferNew;
 	}
-	m_pTextureBuffer = reinterpret_cast<TextureBuffer*>(m_pCurrentRenderer->CreateTextureBuffer2D(m_cImage, TextureBuffer::Unknown, 0));
-
-	UpdateVertexBuffer(m_pVertexBuffer, Vector2(float(m_psWindowsData->nXPos), float(m_psWindowsData->nYPos)), Vector2(float(m_psWindowsData->nFrameWidth), float(m_psWindowsData->nFrameHeight)));
+	m_pTextureBufferNew = reinterpret_cast<TextureBuffer*>(m_pCurrentRenderer->CreateTextureBuffer2D(m_cImage, TextureBuffer::Unknown, 0));
 
 	GetBerkeliumWindow()->resize(m_psWindowsData->nFrameWidth, m_psWindowsData->nFrameHeight);
 
