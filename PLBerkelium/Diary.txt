@@ -1,3 +1,9 @@
+>> 11.07.2012
+[CO]
+- "SRPWindow::ResizeWindow()": With every resize call, a new texture was created without destroying the previous texture
+
+
+
 >> 09.07.2012
 [IJH]
 - Added documentation to SRPWindow methods
