@@ -1,8 +1,6 @@
 //[-------------------------------------------------------]
 //[ Header                                                ]
 //[-------------------------------------------------------]
-#include <PLRenderer/Renderer/VertexShader.h>
-#include <PLRenderer/Renderer/FragmentShader.h>
 #include "PLBerkelium/SRPWindow.h"
 
 
@@ -53,7 +51,7 @@ SRPWindow::SRPWindow(const String &sName) :
 	// we need to create a berkelium context
 	// it might be wise to centralize the context back to the Gui class because each context is represented my a Berkelium.exe process on runtime
 	// the only downside of this is when a window crashes it needs to refresh all windows within the context so they will lose their current state
-	/*this needs to be moved back to gui*/
+	//todo: [10-07-2012 Icefire] this needs to be moved back to gui
 	CreateBerkeliumContext();
 }
 
@@ -98,7 +96,7 @@ SRPWindow::~SRPWindow()
 
 void SRPWindow::DebugToConsole(const String &sString)
 {
-	/*this should be deprecated when not needed anymore*/
+	//undone: [10-07-2012 Icefire] this should be deprecated when not needed anymore
 	System::GetInstance()->GetConsole().Print("PLBerkelium::SRPWindow - " + sString);
 }
 
@@ -156,7 +154,7 @@ void SRPWindow::onPaint(Berkelium::Window *win, const unsigned char *sourceBuffe
 void SRPWindow::onCreatedWindow(Berkelium::Window *win, Berkelium::Window *newWindow, const Berkelium::Rect &initialRect)
 {
 	DebugToConsole("onCreatedWindow()\n");
-	/*should create certain windows on Gui (new context) or this one!*/
+	//undone: [10-07-2012 Icefire] should create certain windows on Gui (new context) or this one!
 	newWindow->destroy(); // discard for now
 }
 
@@ -242,7 +240,7 @@ ProgramWrapper *SRPWindow::CreateProgramWrapper()
 
 bool SRPWindow::UpdateVertexBuffer(VertexBuffer *pVertexBuffer, const Vector2 &vPosition, const Vector2 &vImageSize)
 {
-	/*i am not sure yet if this method is right for this use case*/
+	//hack: [10-07-2012 Icefire] i am not sure yet if this method is right for this use case
 
 	if (!pVertexBuffer)
 	{
@@ -304,7 +302,7 @@ bool SRPWindow::Initialize(Renderer *pRenderer, const Vector2 &vPosition, const 
 	// set the renderer
 	SetRenderer(pRenderer);
 
-	/*verify the following to be valid and optimal*/
+	//fix: [10-07-2012 Icefire] verify the following to be valid and optimal
 
 	// set the vertex buffer
 	m_pVertexBuffer = CreateVertexBuffer(vPosition, vImageSize);
@@ -363,10 +361,7 @@ void SRPWindow::DrawWindow()
 		// set the render state to allow for transparency
 		m_pCurrentRenderer->SetRenderState(RenderState::BlendEnable, true);
 
-		/*
-		possible change
-		- let (re)sizing be handled by the program uniform, see http://dev.pixellight.org/forum/viewtopic.php?f=6&t=503
-		*/
+		//todo: [10-07-2012 Icefire] let (re)sizing be handled by the program uniform, see http://dev.pixellight.org/forum/viewtopic.php?f=6&t=503
 		{
 			const Rectangle &cViewportRect = m_pCurrentRenderer->GetViewport();
 			float fX1 = cViewportRect.vMin.x;
@@ -539,7 +534,7 @@ void SRPWindow::BufferCopyScroll(PLCore::uint8 *pImageBuffer, int &nWidth, int &
 		}
 		if(dx != 0) // scroll horizontal !! WIERD CRASH HERE !!
 		{
-			/*buffer overflow within this scope*/
+			//fix: [10-07-2012 Icefire] buffer overflow within this scope
 			// int subx = dx > 0 ? 0 : -dx;
 			for (int y = 0; y < hig; y++)
 			{
@@ -599,14 +594,14 @@ void SRPWindow::MoveToFront()
 
 void SRPWindow::onCrashedWorker(Berkelium::Window *win)
 {
-	/*not used or implemented*/
+	//undone: [10-07-2012 Icefire] not used or implemented
 	DebugToConsole("onCrashedWorker()\n");
 }
 
 
 void SRPWindow::onCrashedPlugin(Berkelium::Window *win, Berkelium::WideString pluginName)
 {
-	/*not used or implemented*/
+	//undone: [10-07-2012 Icefire] not used or implemented
 	DebugToConsole("onCrashedPlugin()\n");
 }
 
@@ -638,14 +633,14 @@ void SRPWindow::onCrashed(Berkelium::Window *win)
 
 void SRPWindow::onUnresponsive(Berkelium::Window *win)
 {
-	/*not used or implemented*/
+	//undone: [10-07-2012 Icefire] not used or implemented
 	DebugToConsole("onUnresponsive()\n");
 }
 
 
 void SRPWindow::onResponsive(Berkelium::Window *win)
 {
-	/*not used or implemented*/
+	//undone: [10-07-2012 Icefire] not used or implemented
 	DebugToConsole("onResponsive()\n");
 }
 
@@ -675,14 +670,14 @@ void SRPWindow::RecreateWindow()
 
 void SRPWindow::CreateBerkeliumContext()
 {
-	/*should move back to gui*/
+	//todo: [10-07-2012 Icefire] should move back to gui
 	m_pBerkeliumContext = Berkelium::Context::create();
 }
 
 
 void SRPWindow::DestroyContext()
 {
-	/*should move back to gui*/
+	//todo: [10-07-2012 Icefire] should move back to gui
 	m_pBerkeliumContext->destroy();
 	m_pBerkeliumContext = nullptr;
 }
@@ -716,15 +711,6 @@ void SRPWindow::DestroyBerkeliumWindow()
 		m_pBerkeliumWindow->unfocus();
 		// destroy window
 		m_pBerkeliumWindow->destroy();
-
-		/*make sure the following is required and valid*/
-
-		// delete window pointer
-		// [TODO](CO) When debugging, "SRPWindow::DestroyBerkeliumWindow()" -> "delete m_pBerkeliumWindow" caused a sudden program
-		// termination without being able to close the application in a clean way. "Berkelium::Window::~Window()" states:
-		// "\deprecated Use destroy() to avoid interference from custom allocators.". Review this.
-//		delete m_pBerkeliumWindow;
-
 		// set nullptr
 		m_pBerkeliumWindow = nullptr;
 	}
@@ -817,11 +803,11 @@ void SRPWindow::onJavascriptCallback(Berkelium::Window *win, void *replyMsg, Ber
 	{
 		Berkelium::WideString jsonStr = toJSON(args[i]);
 
-		/*add additional argument types*/
+		//todo: [10-07-2012 Icefire] add additional argument types and verify them working
 		if (args[i].type() == Berkelium::Script::Variant::JSSTRING)
 		{
 			// string
-			/*what if more than one parameter and one of them has a whitespace, needs testing*/
+			//question: [10-07-2012 Icefire] what if more than one parameter and one of them has a whitespace, needs testing
 			sParams = sParams + "Param" + String(i) + "=" + String(args[i].toString().data()) + " ";
 		}
 		else if (args[i].type() == Berkelium::Script::Variant::JSBOOLEAN)
@@ -896,7 +882,7 @@ void SRPWindow::onJavascriptCallback(Berkelium::Window *win, void *replyMsg, Ber
 
 void SRPWindow::MoveWindow(const int &nX, const int &nY)
 {
-	/*i am not sure yet if this method is right for this use case*/
+	//question: [10-07-2012 Icefire] i am not sure yet if this method is right for this use case
 
 	m_psWindowsData->nXPos = nX;
 	m_psWindowsData->nYPos = nY;
@@ -906,7 +892,7 @@ void SRPWindow::MoveWindow(const int &nX, const int &nY)
 
 void SRPWindow::onTooltipChanged(Berkelium::Window *win, Berkelium::WideString text)
 {
-	/*deprecate*/
+	//undone: [10-07-2012 Icefire] deprecate
 
 	if (m_bToolTipEnabled)
 	{
@@ -923,7 +909,7 @@ void SRPWindow::onTooltipChanged(Berkelium::Window *win, Berkelium::WideString t
 
 void SRPWindow::SetupToolTipWindow()
 {
-	/*deprecate*/
+	//undone: [10-07-2012 Icefire] deprecate
 
 	// create tool tip window and set data
 	m_pToolTip = new SRPWindow("ToolTip");
@@ -955,7 +941,7 @@ void SRPWindow::SetupToolTipWindow()
 
 void SRPWindow::DestroyToolTipWindow()
 {
-	/*deprecate*/
+	//undone: [10-07-2012 Icefire] deprecate
 
 	if (m_pToolTip)
 	{
@@ -967,7 +953,7 @@ void SRPWindow::DestroyToolTipWindow()
 
 void SRPWindow::SetToolTip(const String &sText)
 {
-	/*deprecate*/
+	//undone: [10-07-2012 Icefire] deprecate
 
 	if (m_pToolTip)
 	{
@@ -991,7 +977,7 @@ void SRPWindow::SetToolTip(const String &sText)
 
 void SRPWindow::SetToolTipEnabled(const bool &bEnabled)
 {
-	/*deprecate*/
+	//undone: [10-07-2012 Icefire] deprecate
 
 	m_bToolTipEnabled = bEnabled;
 
@@ -1013,7 +999,7 @@ void SRPWindow::RemoveCallBacks() const
 		sCallBack *psCallBack = cIterator.Next();
 		// cleanup
 		// i am not sure if you need to cleanup the children of a struct and the struct itself when you remove the struct from a hashmap
-		delete psCallBack->pParameters;
+		// delete psCallBack->pParameters; // [12-07-2012 Icefire] this generated an error!
 		delete psCallBack->pReplyMsg;
 		delete psCallBack;
 	}
@@ -1035,12 +1021,8 @@ sCallBack *SRPWindow::GetCallBack(const String &sKey) const
 
 void SRPWindow::ResizeWindow(const int &nWidth, const int &nHeight)
 {
-	/*
-	needed change
-	- let (re)sizing be handled by the program uniform, see http://dev.pixellight.org/forum/viewtopic.php?f=6&t=503
-	*/
-
-	//fix: [06-07-2012 Icefire] buffer overflows on resize happen to often to accept the current method as is
+	//fix: [10-07-2012 Icefire] let (re)sizing be handled by the program uniform, see http://dev.pixellight.org/forum/viewtopic.php?f=6&t=503
+	// buffer overflows on resize happen to often to accept the current method as is
 
 	m_bIgnoreBufferUpdate = true;
 
@@ -1057,6 +1039,8 @@ void SRPWindow::ResizeWindow(const int &nWidth, const int &nHeight)
 		delete m_pTextureBufferNew;
 	}
 	m_pTextureBufferNew = reinterpret_cast<TextureBuffer*>(m_pCurrentRenderer->CreateTextureBuffer2D(m_cImage, TextureBuffer::Unknown, 0));
+
+	UpdateVertexBuffer(m_pVertexBuffer, Vector2(float(m_psWindowsData->nXPos), float(m_psWindowsData->nYPos)), Vector2(float(m_psWindowsData->nFrameWidth), float(m_psWindowsData->nFrameHeight)));
 
 	GetBerkeliumWindow()->resize(m_psWindowsData->nFrameWidth, m_psWindowsData->nFrameHeight);
 
@@ -1096,13 +1080,12 @@ bool SRPWindow::AddCallBackFunction(const DynFuncPtr pDynFunc, String sJSFunctio
 
 void SRPWindow::onRunFileChooser(Berkelium::Window *win, int mode, Berkelium::WideString title, Berkelium::FileString defaultFile)
 {
-	/*not used or implemented*/
+	//undone: [10-07-2012 Icefire] not used or implemented
 
 	DebugToConsole("onRunFileChooser()\n");
-	/*
-	is this implemented at all? https://groups.google.com/d/topic/berkelium/vKGuEpt9CbI/discussion
-		- awaiting new build for berkelium
-	*/
+	
+	//undone: [10-07-2012 Icefire] is this implemented at all? https://groups.google.com/d/topic/berkelium/vKGuEpt9CbI/discussion
+	// awaiting new build for berkelium
 }
 
 
@@ -1187,10 +1170,7 @@ void SRPWindow::onWidgetMove(Berkelium::Window *win, Berkelium::Widget *wid, int
 		psWidget->nXPos = m_psWindowsData->nXPos + newX;
 		psWidget->nYPos = m_psWindowsData->nYPos + newY;
 
-		/*
-		possible change
-		- let (re)sizing be handled by the program uniform, see http://dev.pixellight.org/forum/viewtopic.php?f=6&t=503
-		*/
+		//todo: [10-07-2012 Icefire] let (re)sizing be handled by the program uniform, see http://dev.pixellight.org/forum/viewtopic.php?f=6&t=503
 
 		// update the buffer
 		UpdateVertexBuffer(psWidget->pVertexBuffer, Vector2(float(psWidget->nXPos), float(psWidget->nYPos)), Vector2(float(psWidget->nWidth), float(psWidget->nHeight)));
@@ -1253,10 +1233,7 @@ void SRPWindow::onWidgetResize(Berkelium::Window *win, Berkelium::Widget *wid, i
 		psWidget->nWidth = newWidth;
 		psWidget->nHeight = newHeight;
 
-		/*
-		possible change
-		- let (re)sizing be handled by the program uniform, see http://dev.pixellight.org/forum/viewtopic.php?f=6&t=503
-		*/
+		//todo: [10-07-2012 Icefire] let (re)sizing be handled by the program uniform, see http://dev.pixellight.org/forum/viewtopic.php?f=6&t=503
 
 		// update the buffer
 		UpdateVertexBuffer(psWidget->pVertexBuffer, Vector2(float(psWidget->nXPos), float(psWidget->nYPos)), Vector2(float(psWidget->nWidth), float(psWidget->nHeight)));
@@ -1281,10 +1258,7 @@ void SRPWindow::DrawWidget(sWidget *psWidget)
 	// set render state to allow for transparency
 	m_pCurrentRenderer->SetRenderState(RenderState::BlendEnable, true);
 
-	/*
-	possible change
-	- let (re)sizing be handled by the program uniform, see http://dev.pixellight.org/forum/viewtopic.php?f=6&t=503
-	*/
+	//todo: [10-07-2012 Icefire] let (re)sizing be handled by the program uniform, see http://dev.pixellight.org/forum/viewtopic.php?f=6&t=503
 
 	{
 		const Rectangle &cViewportRect = m_pCurrentRenderer->GetViewport();
@@ -1360,6 +1334,17 @@ void SRPWindow::ExecuteJavascript(const String &sJavascript) const
 bool SRPWindow::IsLoaded() const
 {
 	return m_psWindowsData->bLoaded;
+}
+
+
+Image SRPWindow::GetImage() const
+{
+	// we return the image
+	return Image(m_cImage);
+	//question: [10-07-2012 Icefire]
+	// 1# will this send the image as a copy?
+	// 2# will all elements of the image be copied (image buffer / buffer data)?
+	// 3# is there a better way to send a class like this? (pointer by ref)
 }
 
 

@@ -1,3 +1,10 @@
+>> 12.07.2012
+[IJH]
+- Moved includes to header for consistencies
+- Reviewed and trivial modifications
+
+
+
 >> 11.07.2012
 [CO]
 - "SRPWindow::ResizeWindow()": With every resize call, a new texture was created without destroying the previous texture

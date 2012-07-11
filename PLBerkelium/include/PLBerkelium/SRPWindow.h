@@ -2,7 +2,7 @@
 #define __PLBERKELIUM_SRPWINDOWS_H__
 #pragma once
 
-// SRPWindow verified [10-juli-2012 at 23:47 by Icefire]
+// SRPWindow verified [12-juli-2012 at 01:11 by Icefire]
 
 
 //[-------------------------------------------------------]
@@ -22,6 +22,8 @@
 #include <PLRenderer/Renderer/ProgramUniform.h>
 #include <PLRenderer/Renderer/ShaderLanguage.h>
 #include <PLRenderer/RendererContext.h>
+#include <PLRenderer/Renderer/VertexShader.h>
+#include <PLRenderer/Renderer/FragmentShader.h>
 #include <PLGraphics/Image/Image.h>
 #include <PLGraphics/Image/ImageBuffer.h>
 #include <PLMath/Vector2.h>
@@ -390,6 +392,18 @@ class SRPWindow : public PLScene::SceneRendererPass, public Berkelium::WindowDel
 		*    'true' if the page has loaded, else 'false'
 		*/
 		PLBERKELIUM_API bool IsLoaded() const;
+		
+		/**
+		*  @brief
+		*    Returns the image of this window
+		*
+		*  @remarks
+		*    You can for example use this to save or use the image of this window somewhere else.
+		*
+		*  @return
+		*    image of this window
+		*/
+		PLBERKELIUM_API PLGraphics::Image GetImage() const;
 
 	protected:
 

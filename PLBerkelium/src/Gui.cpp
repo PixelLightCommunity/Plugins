@@ -77,13 +77,18 @@ Gui::~Gui()
 
 void Gui::DebugToConsole(const String &sString)
 {
-	/*this should be deprecated when not needed anymore*/
+	//undone: [10-07-2012 Icefire] this should be deprecated when not needed anymore
 	System::GetInstance()->GetConsole().Print("PLBerkelium::Gui - " + sString);
 }
 
 
 bool Gui::AddWindow(const String &sName, const bool &pVisible, const String &sUrl, const int &nWidth, const int &nHeight, const int &nX, const int &nY, const bool &bTransparent, const bool &bEnabled)
 {
+	if (sName == "")
+	{
+		// we cannot create a window with an empty name
+		return false;
+	}
 	if (m_bBerkeliumInitialized)
 	{
 		if (!m_bRenderersInitialized)
@@ -109,7 +114,7 @@ bool Gui::AddWindow(const String &sName, const bool &pVisible, const String &sUr
 		pSRPWindow->GetData()->nYPos = nY;
 		pSRPWindow->GetData()->bTransparent = bTransparent;
 		pSRPWindow->GetData()->bKeyboardEnabled = bEnabled;
-		/*implement the option to disallow mouse events but still keep keyboard events going*/
+		//todo: [10-07-2012 Icefire] implement the option to disallow mouse events but still keep keyboard events going
 		pSRPWindow->GetData()->bMouseEnabled = bEnabled;
 		pSRPWindow->GetData()->bNeedsFullUpdate = true;
 		pSRPWindow->GetData()->bLoaded = false;
@@ -192,9 +197,6 @@ Berkelium::Window *Gui::GetBerkeliumWindow(const PLCore::String &sName)
 {
 	if (m_pmapWindows->Get(sName) == NULL)
 	{
-		/*test debug to make sure the dummy window is returned if the window is not found*/
-		DebugToConsole("Could not find window, returning dummy instead\n");
-
 		// we should return the berkelium window from the dummy window to prevent crashes on called functions
 		// the end user should always verify that the returned object is the right one
 		return m_pmapWindows->Get(BERKELIUMDUMMYWINDOW)->GetBerkeliumWindow();
@@ -234,7 +236,7 @@ void Gui::SetRenderers(Renderer *pRenderer, SceneRenderer *pSceneRenderer)
 				m_pCurrentSceneRenderer = pSceneRenderer;
 				m_bRenderersInitialized = true;
 
-				/*perhaps the following can be moved somewhere else*/
+				//hack: [10-07-2012 Icefire] perhaps the following can be moved somewhere else
 				// create the mouse pointer
 				CreateMousePointer();
 			}
@@ -247,9 +249,6 @@ sWindowsData *Gui::GetWindowData(const PLCore::String &sName)
 {
 	if (m_pmapWindows->Get(sName) == NULL)
 	{
-		/*test debug to make sure the dummy window is returned if the window is not found*/
-		DebugToConsole("Could not find window, returning dummy instead\n");
-
 		// we should return the data from the dummy window to prevent crashes on called functions
 		// the end user should always verify that the returned data is the right one
 		return m_pmapWindows->Get(BERKELIUMDUMMYWINDOW)->GetData();
@@ -345,9 +344,6 @@ SRPWindow *Gui::GetWindow(const PLCore::String &sName)
 {
 	if (m_pmapWindows->Get(sName) == NULL)
 	{
-		/*test debug to make sure the dummy window is returned if the window is not found*/
-		DebugToConsole("Could not find window, returning dummy instead\n");
-
 		// we should return the dummy window to prevent crashes on called functions
 		// the end user should always verify that the returned window is the right one
 		return m_pmapWindows->Get(BERKELIUMDUMMYWINDOW);
@@ -613,7 +609,7 @@ void Gui::MouseEvents(Control &cControl)
 			if (m_pLastMouseWindow)
 			{
 				// the mouse has left the window so the tooltip should be empty
-				/*deprecate*/
+				//undone: [10-07-2012 Icefire] deprecate
 				m_pLastMouseWindow->SetToolTip("");
 			}
 
@@ -625,9 +621,7 @@ void Gui::MouseEvents(Control &cControl)
 				if (cControl.GetName() == "MouseLeft")
 				{
 					// we clicked outside a window so we need to unfocus it
-					/*
-					this should only happen on mouse down, also allow for more mouse buttons to unfocus a window (right, middle, etc)
-					*/
+					//undone: [10-07-2012 Icefire] this should only happen on mouse down, also allow for more mouse buttons to unfocus a window (right, middle, etc)
 					UnFocusAllWindows();
 				}
 			}
@@ -640,7 +634,7 @@ void Gui::MouseEvents(Control &cControl)
 		}
 
 		// the mouse supposedly has moved so we wanna know about it
-		/*perhaps a better check for this*/
+		//question: [10-07-2012 Icefire] perhaps a better check for this
 		m_bMouseMoved = true;
 	}
 }
@@ -651,7 +645,7 @@ void Gui::MouseClicks(SRPWindow *pSRPWindow, Control &cControl)
 	if (cControl.GetName() == "MouseLeft")
 	{
 		// mouse clicked on a window so we need to focus it
-		/*have this happen on mouse down only*/
+		//todo: [10-07-2012 Icefire] have this happen on mouse down only
 		FocusWindow(pSRPWindow);
 
 		if ((Timing::GetInstance()->GetPastTime() - m_nLastMouseLeftReleaseTime) > 0 && (Timing::GetInstance()->GetPastTime() - m_nLastMouseLeftReleaseTime) < 250)
@@ -681,7 +675,7 @@ void Gui::MouseClicks(SRPWindow *pSRPWindow, Control &cControl)
 	if (cControl.GetName() == "MouseRight")
 	{
 		// mouse clicked on a window so we need to focus it
-		/*have this happen on mouse down*/
+		//todo: [10-07-2012 Icefire] have this happen on mouse down only
 		FocusWindow(pSRPWindow);
 
 		// send a right mouse click
@@ -712,12 +706,12 @@ void Gui::MouseScrolls(SRPWindow *pSRPWindow, Control &cControl)
 void Gui::OnControl(Control &cControl)
 {
 	{
-		/*filter out anything but mouse events*/
+		//undone: [10-07-2012 Icefire] filter out anything but mouse events
 		MouseEvents(cControl);
 	}
 
 	{
-		/*filter out anything but keyboard events*/
+		//undone: [10-07-2012 Icefire] filter out anything but keyboard events
 		KeyboardEvents(cControl);
 	}
 }
@@ -822,7 +816,7 @@ void Gui::DefaultCallBackHandler()
 
 void Gui::KeyboardEvents(Control &cControl)
 {
-	/*i am not yet satisfied with this method, so expect this to change*/
+	//hack: [10-07-2012 Icefire] i am not yet satisfied with this method, so expect this to change
 
 	if (m_pFocusedWindow)
 	{
@@ -924,7 +918,7 @@ void Gui::DragWindowHandler()
 				if (m_vLockMousePos == Vector2i::Zero)
 				{
 					// when dragging the window the tooltip should be empty
-					/*deprecate*/
+					//undone: [10-07-2012 Icefire] deprecate
 					m_pDragWindow->SetToolTip("");
 					// we need to lock the mouse position relative to the dragging window
 					m_vLockMousePos = m_pDragWindow->GetRelativeMousePosition(m_vLastKnownMousePos);
@@ -947,7 +941,7 @@ void Gui::DragWindowHandler()
 
 void Gui::KeyboardHandler()
 {
-	/*i am not yet satisfied with this method, so expect this to change*/
+	//hack: [10-07-2012 Icefire] i am not yet satisfied with this method, so expect this to change
 
 	if (m_pFocusedWindow)
 	{
@@ -1036,7 +1030,7 @@ void Gui::KeyboardHandler()
 
 void Gui::AddTextKey(const String &sName, const String &sKey, sButton *psButton)
 {
-	/*i am not yet satisfied with this method*/
+	//hack: [10-07-2012 Icefire] i am not yet satisfied with this method
 
 	m_pmapTextButtonHandler->Clear();
 	psButton->bValid = true;
@@ -1048,7 +1042,7 @@ void Gui::AddTextKey(const String &sName, const String &sKey, sButton *psButton)
 
 void Gui::AddKey(const PLCore::String &sName, const char &nKey, sButton *psButton)
 {
-	/*i am not yet satisfied with this method*/
+	//hack: [10-07-2012 Icefire] i am not yet satisfied with this method
 
 	psButton->bValid = true;
 	psButton->nKey = nKey;
@@ -1095,7 +1089,7 @@ void Gui::ResizeWindowHandler()
 				if (m_vLockMousePos == Vector2i::Zero)
 				{
 					// when resizing the window the tooltip should be empty
-					/*deprecate*/
+					//undone: [10-07-2012 Icefire] deprecate
 					m_pResizeWindow->SetToolTip("");
 					// we need to lock the mouse position relative to the resizing window
 					m_vLockMousePos = m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos);
@@ -1111,8 +1105,8 @@ void Gui::ResizeWindowHandler()
 				{
 					// we should make the window bigger
 					Vector2i vNewSize = m_pResizeWindow->GetSize() - (m_vLockMousePos - m_pResizeWindow->GetRelativeMousePosition(m_vLastKnownMousePos));
-					// check if the new size difference is bigger than 2px in any direction so to not call to many resize updates
-					if ((vNewSize - m_pResizeWindow->GetSize()).x > 2 || (vNewSize - m_pResizeWindow->GetSize()).y > 2)
+					// check if the new size difference is bigger than 1px in any direction so to not call to many resize updates
+					if ((vNewSize - m_pResizeWindow->GetSize()).x > 1 || (vNewSize - m_pResizeWindow->GetSize()).y > 1)
 					{
 						// check if new window size is at least 4 x 4 pixels, if you need smaller windows than that you should switch your field to nanotechnology
 						if (vNewSize.x >= 4 && vNewSize.y >= 4)

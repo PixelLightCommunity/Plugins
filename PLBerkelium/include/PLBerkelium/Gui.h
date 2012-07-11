@@ -96,6 +96,9 @@ class Gui : public PLCore::Object {
 		*  @brief
 		*    Adds a window based on given parameters
 		*
+		*  @note
+		*    Its not wise to complicate the name given to a window since that is by which we identify it.
+		*
 		*  @param[in] const PLCore::String & sName
 		*  @param[in] const bool & pVisible
 		*  @param[in] const PLCore::String & sUrl
