@@ -20,6 +20,8 @@
 #include <PLRenderer/Renderer/ProgramUniform.h>
 #include <PLRenderer/Renderer/ShaderLanguage.h>
 #include <PLRenderer/RendererContext.h>
+#include <PLRenderer/Renderer/VertexShader.h>
+#include <PLRenderer/Renderer/FragmentShader.h>
 #include <PLGraphics/Image/Image.h>
 #include <PLGraphics/Image/ImageBuffer.h>
 #include <PLMath/Vector2.h>

@@ -1,3 +1,10 @@
+>> 12.07.2012
+[IJH]
+- Moved includes to header for consistencies
+- NB: Awesomium RC2 has been released, i shall review the changelog and migrate the changes over to this plugin in a timely fashion
+
+
+
 >> 05.07.2012
 [IJH]
  - Warnings that i am not sure about

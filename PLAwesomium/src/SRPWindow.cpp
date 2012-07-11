@@ -1,8 +1,6 @@
 //[-------------------------------------------------------]
 //[ Header                                                ]
 //[-------------------------------------------------------]
-#include <PLRenderer/Renderer/VertexShader.h>
-#include <PLRenderer/Renderer/FragmentShader.h>
 #include "PLAwesomium/SRPWindow.h"
 
 
