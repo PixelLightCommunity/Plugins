@@ -1,6 +1,8 @@
 //[-------------------------------------------------------]
 //[ Header                                                ]
 //[-------------------------------------------------------]
+#include <PLRenderer/Renderer/VertexShader.h>
+#include <PLRenderer/Renderer/FragmentShader.h>
 #include "PLAwesomium/SRPWindow.h"
 
 
@@ -60,12 +62,10 @@ SRPWindows::~SRPWindows()
 	}
 	if (nullptr != m_pFragmentShader)
 	{
-		//todo: warning C4150: deletion of pointer to incomplete type 'PLRenderer::FragmentShader'; no destructor called [05-juli-2012 Icefire]
 		delete m_pFragmentShader;
 	}
 	if (nullptr != m_pVertexShader)
 	{
-		//todo: warning C4150: deletion of pointer to incomplete type 'PLRenderer::VertexShader'; no destructor called [05-juli-2012 Icefire]
 		delete m_pVertexShader;
 	}
 	if (nullptr != m_pTextureBuffer)
